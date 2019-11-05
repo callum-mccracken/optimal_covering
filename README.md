@@ -1,17 +1,15 @@
-# optimal_covering_micro
+# optcov
 
-This is a smaller version of optimal_coverings, that is less easily ported
-directly into a usable form for satellite work, but is way easier to deal with
-computationally.
+This is a smaller version of optimal_coverings, that is a lot easier to deal with.
 
 
 ## Major Functions:
 
-- Generate "clear maps", sets of polygons containing clear area
+- Download earth data, find observable spots
 - Specify choices of points in a more user-friendly way
-- Geometry work is dealt with in the background
+- Geometry work is dealt with in the background ONLY
 - Easier to find relevant sections for machine learning
-  - e.g. emphasis on editable genetic algorithm modules, ...
+  - e.g. genetics module
 
 ## Clear Map Generation
 
