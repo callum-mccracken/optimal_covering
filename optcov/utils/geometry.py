@@ -179,7 +179,6 @@ def ortho_x_y_to_lon_lat(x, y):
     if x == 0 and y == 0:  # special case where we don't have a unique value
         return c.sat_lon, c.sat_lat
 
-    λ_s = radians(c.sat_lon)
     φ_s = radians(c.sat_lat)
 
     # do inverse orthographic projection, see wiki for details
@@ -396,9 +395,7 @@ def arc_length(lon1, lat1, lon2=c.sat_lon, lat2=c.sat_lat):
     λ_2 = radians(lon2)
     φ_2 = radians(lat2)
 
-    # absolute differences
     Δλ = abs(λ_1 - λ_2)
-    Δφ = abs(φ_1 - φ_2)
 
     # use formula for great circle distance from wikipedia
     # https://en.wikipedia.org/wiki/Great-circle_distance
@@ -549,7 +546,7 @@ def test_obs_poly():
     for lon in c.lons:
         for lat in c.lats:
             if visible(lon, lat):
-                poly = obs_poly(lon, lat)
+                _ = obs_poly(lon, lat)
     # other than the fact that it makes polygons, not sure what else to test...
     print("passed test_obs_poly")
 
@@ -608,7 +605,7 @@ def fov_coverage(population, clear_poly):
     # light, and we were looking straight down for every FoV.
 
     # that's not a stellar metric, but I'm not sure what else to use.
-    return areas  # / ideal_area
+    return areas / ideal_area
 
 
 def test_fov_coverage():
@@ -623,27 +620,9 @@ def test_fov_coverage():
             population[m, f] = (lon, lat)
 
     # get some test day's cloud data
-    try:
-        from optcov.earth_data import get_clear_polys
-        clear_polys = get_clear_polys(c.dtime)
-    except Exception:
-        print("Ensure you have downloaded some cloud data!")
-        raise
+    from optcov import earth_data
+    clear_poly = earth_data.big_clear_poly
 
-    coverage = fov_coverage(population, clear_polys)
+    _ = fov_coverage(population, clear_poly)
+    # not sure how we can test if it's good, but this at least checks it works
     print("passed test_fov_coverage")
-
-
-if __name__ == "__main__":
-    test_add_lon_lat()
-    test_perpendicular_vector()
-    test_set_magnitude()
-    test_ortho_conversion()
-    test_arcs_angles()
-    test_xyz_conversion()
-    test_ortho_angles()
-    test_visible()
-    test_polygon_area()
-    test_obs_poly()
-    test_fov_coverage()
-    print("All tests passed!")

@@ -125,18 +125,13 @@ def get_clouds(dtime, interp_time=None):
             + wupper*cloud[upper, :, :]
 
         # set any invalid values to 1 = most cloudy
-        cld[np.is_nan(cld)] = 1
+        cld[np.isnan(cld)] = 1
 
         return cld
 
 
 def clear_vertices(lon, lat):
-    # it's easy to figure out the lon / lat of a clear_poly,
-    # just make sure it's in the [(ll), (ul), (ur), (lr), (ll)] format
-    # (see geometry.py for the spec), so it works with shapely Polygons
-    lon_sign = -1 if lon < 0 else 1
-    lat_sign = -1 if lat < 0 else 1
-
+    """calculate vertices of a cloud point, using set lon / lat resolution"""
     lo_lon = g.add_lon(lon, -c.lon_res / 2)
     lo_lat = g.add_lat(lat, -c.lat_res / 2)
     hi_lon = g.add_lon(lon,  c.lon_res / 2)
@@ -149,7 +144,7 @@ def clear_vertices(lon, lat):
 
 
 def get_cloud_mask(dtime):
-    # cloud_fraction is a 2d array of cloud fraction values
+    """returns a 2d array of cloud fraction values"""
     cloud_mask_path = dtime.strftime(c.cloud_mask_format)
     if not exists(cloud_mask_path):
         cloud_fraction = get_clouds(dtime)
@@ -182,7 +177,7 @@ def get_light_mask(dtime):
     """get 2D array of points with 1 = light 0 = dark"""
     light_mask_file = dtime.strftime(c.light_mask_format)
     if not exists(light_mask_file):
-        print("Creating light_mask, this might take 30 second the first time")
+        print("Creating light_mask, this might take 30 seconds")
         # this is the polygon that is the "shady" area
         night = Nightshade(dtime)
         # get all points not within the dark_poly
@@ -288,7 +283,7 @@ def download_merra_data(year, month):
                 year, month, day) +
             "--content-disposition " +
             wget_format.format(year=year, month=month, day=day))
-        print("Done day number", day)
+        print("Starting day", day)
 
     # rename / move downloaded files
     for fname in os.listdir():
@@ -297,6 +292,8 @@ def download_merra_data(year, month):
         if fname.endswith("nc4.nc"):
             new_filename = fname[:-3]
             new_dir = join("{}".format(year), "{:02}".format(month))
+            if not exists(str(year)):
+                os.mkdir(str(year))
             if not exists(new_dir):
                 os.mkdir(new_dir)
             os.system("mv "+fname+" "+join(new_dir, new_filename))
@@ -307,8 +304,16 @@ def download_merra_data(year, month):
     # at the end return us to the cwd in case other code needs to be run
     os.chdir(cwd)
 
-
-# get clouds for a day
-print("initializing clear polygons")
-clear_polys = get_clear_polys(c.dtime)
-big_clear_poly = cascaded_union(clear_polys)
+try:
+    # get clouds for a day:
+    print("initializing clear polygons")
+    clear_polys = get_clear_polys(c.dtime)
+    big_clear_poly = cascaded_union(clear_polys)
+except OSError:
+    print("cloud data doesn't seem to exist for the following time:")
+    print(c.dtime.strftime("%Y %m %d, %H:00"))
+    print("so I'll download that month's data if you don't mind.")
+    download_merra_data(c.dtime.year, c.dtime.month)
+    print("initializing clear polygons")
+    clear_polys = get_clear_polys(c.dtime)
+    big_clear_poly = cascaded_union(clear_polys)
