@@ -1,11 +1,11 @@
 """contains functions for testing each function in each module"""
-from optcov.utils.constants import dtime
+from constants import dtime
 from datetime import datetime
 
 
 def test_earth():
     print("working on: test_earth")
-    from optcov import earth_data
+    import earth_data
     # check that land data works -- we should only need to run this once,
     # but best to make sure it works every time
     earth_data.get_land_mask()
@@ -28,9 +28,9 @@ def test_earth():
 
 def test_utils():
     # if constants import, it's probably fine, not much in that file
-    from optcov.utils import constants
+    import constants
     # do all the geometry tests
-    from optcov.utils import geometry
+    import geometry
     geometry.test_add_lon_lat()
     geometry.test_perpendicular_vector()
     geometry.test_set_magnitude()
@@ -44,7 +44,7 @@ def test_utils():
     geometry.test_fov_coverage()
     # test timer
     import time
-    from optcov.utils.timer import timeit
+    from timer import timeit
     @timeit
     def test_function():
         time.sleep(1)
@@ -55,9 +55,9 @@ def test_utils():
 
 
 def test_plotting():
-    from optcov import plot_funcs
-    from optcov.genetics import random_population
-    from optcov.earth_data import get_clear_polys
+    import plot_funcs
+    from genetics import random_population
+    from earth_data import get_clear_polys
     clear_polys = get_clear_polys(dtime)
     population = random_population(clear_polys)
     # this will also plot the clear polys, no need to test those separately
@@ -65,7 +65,7 @@ def test_plotting():
 
 
 def test_optimization():
-    from optcov import genetics
+    import genetics
     genetics.perform_genetics(dtime)
 
 

@@ -1,1 +1,0 @@
-"""Modules to help solve the optimal coverings problem"""

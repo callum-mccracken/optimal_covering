@@ -3,10 +3,10 @@ from os.path import join, realpath, dirname
 import cartopy
 from cartopy.feature.nightshade import Nightshade
 
-from optcov import earth_data
-from optcov.utils import constants as c
-from optcov.utils import geometry as g
-from optcov.utils.timer import timeit
+import earth_data
+import constants as c
+import geometry as g
+from timer import timeit
 
 
 def plot_clear(dtime, clear_polys=None, show=True):
