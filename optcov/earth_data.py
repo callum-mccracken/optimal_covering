@@ -6,7 +6,7 @@ from calendar import monthrange
 from argparse import Namespace
 
 import numpy as np
-from netCDF4 import Dataset
+import netCDF4
 import shapely.geometry
 from shapely.ops import cascaded_union
 from cartopy.feature.nightshade import Nightshade
@@ -64,7 +64,7 @@ def get_clouds(dtime, interp_time=None):
         print("Reading cloud data from MERRA file", fname)
 
     # we'll save cloud data in a Dataset object
-    merra = Dataset(fname, 'r')
+    merra = netCDF4.Dataset(fname, 'r')
 
     # save MERRA datasets as attributes
     time = merra.variables["time"]
@@ -248,8 +248,8 @@ def download_merra_data(year, month):
 
     # record credentials if they don't exist
     if not exists(".netrc"):
-        user = input("Enter earthdata.nasa.gov username: ")
-        password = input("Enter password: ")
+        user = "CallumMcCracken"  # input("Enter earthdata.nasa.gov username: ")
+        password = "ThisIsMyV3ryStrongPassword"  # input("Enter password: ")
         os.system("touch .netrc")
         os.system(
             'echo "machine urs.earthdata.nasa.gov login {} '.format(user) +

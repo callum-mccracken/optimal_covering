@@ -76,6 +76,9 @@ merra_dir = realpath(join(dirname(__file__), '..', '..', 'MERRA'))
 # directory for cloud_mask, land_mask, and light_mask files
 earth_dir = realpath(join(dirname(__file__), "..", "..", "earth_data"))
 
+# path to save images
+png_dir = realpath(join(dirname(__file__), '..', '..', 'images_and_output'))
+
 # ensure they both exist
 for d in [merra_dir, earth_dir]:
     if not exists(d):

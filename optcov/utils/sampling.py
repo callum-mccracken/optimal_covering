@@ -41,7 +41,7 @@ def sampled(a, b, N):
 
     # to hold "taken" for each sample,
     # and to make sure we don't have two identical ones
-    taken_arr = np.empty(N, dtype=object)
+    taken_arr = np.empty((N,n,2), dtype=object)
 
     # now loop through and and make N random combinations
     for i in range(N):
@@ -55,10 +55,10 @@ def sampled(a, b, N):
             # pick n different elements
             for j in range(n):
                 # select value
-                a_or_b = np.random.randint(0, 2)
+                a_or_b = np.random.randint(0, 2)  # 1 or 0
                 take_from = a if a_or_b else b
                 index = np.random.randint(0, n)
-                while taken[index][a_or_b] or (take_from[index] in values):
+                while taken[index][a_or_b]==True or (take_from[index] in values):
                     a_or_b = np.random.randint(0, 2)
                     take_from = a if a_or_b else b
                     index = np.random.randint(0, n)
@@ -67,9 +67,18 @@ def sampled(a, b, N):
                 # "take" value
                 values[j] = take_from[index]
                 taken[index][a_or_b] = True
-            # convert to list
-            if taken not in taken_arr:
-                taken_arr[i] = taken
+            # put taken value in taken_arr
+            if not any([(taken == t).all() for t in taken_arr]):
+                taken_arr[i, :, :] = taken
                 keep_picking = False
         combos[i] = values
     return combos
+
+
+if __name__ == "__main__":
+    a = [1,2,3,4]
+    b = [5,6,7,8]
+    c = sampled(a, b, 10)
+    print(c)
+
+    print(random_sample(range(1000), 10))

@@ -52,13 +52,11 @@ def plot_member(member, generation, clear_polys, dtime, show=True):
     if show:
         plt.show()
     else:
-        fname = join(
-            realpath(join(dirname(__file__), "..")),
-            "gen_"+str(generation)+".png")
+        fname = join(c.png_dir, "gen_"+str(generation)+".png")
         plt.savefig(fname, dpi=300)
         plt.cla()
         plt.clf()
-        print('saved as', fname)
+        print('saved image:', fname)
 
 
 def plot_best_fitnesses(best_fitnesses):

@@ -31,16 +31,16 @@ def test_utils():
     from optcov.utils import constants
     # do all the geometry tests
     from optcov.utils import geometry
-    #geometry.test_add_lon_lat()
-    #geometry.test_perpendicular_vector()
-    #geometry.test_set_magnitude()
-    #geometry.test_ortho_conversion()
-    #geometry.test_arcs_angles()
-    #geometry.test_xyz_conversion()
-    #geometry.test_ortho_angles()
-    #geometry.test_visible()
-    #geometry.test_polygon_area()
-    #geometry.test_obs_poly()
+    geometry.test_add_lon_lat()
+    geometry.test_perpendicular_vector()
+    geometry.test_set_magnitude()
+    geometry.test_ortho_conversion()
+    geometry.test_arcs_angles()
+    geometry.test_xyz_conversion()
+    geometry.test_ortho_angles()
+    geometry.test_visible()
+    geometry.test_polygon_area()
+    geometry.test_obs_poly()
     geometry.test_fov_coverage()
     # test timer
     import time
@@ -71,6 +71,6 @@ def test_optimization():
 
 if __name__ == "__main__":
     #test_earth()
-    test_utils()
-    test_plotting()
+    #test_utils()
+    #test_plotting()
     test_optimization()

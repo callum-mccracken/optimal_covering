@@ -10,7 +10,9 @@ Module for containing all purely geometric functions.
 import numpy as np
 from numpy import cos, sin, arccos, arcsin, arctan2, \
                   sqrt, radians, array, degrees, pi
+np.seterr(all='raise')
 from shapely.geometry import Polygon
+from shapely.errors import TopologicalError
 import shapely.ops as ops
 
 from optcov.utils import constants as c
@@ -379,8 +381,8 @@ max_ang = max_visible_angle()  # in radians
 # max distance traveled on Earth before going off the planet
 max_arc = arc_length_from_angle(max_ang)  # in km
 # maximum value an orthographic coordinate can have
-max_ortho = c.re_km * sin(radians(max_arc / c.lon_length))  # in km
-
+#max_ortho = c.re_km * sin(radians(max_arc / c.lon_length))  # in km
+max_ortho = c.re_km
 
 def arc_length(lon1, lat1, lon2=c.sat_lon, lat2=c.sat_lat):
     """calculates how far away (along Earth's surface) a point is,
@@ -588,40 +590,44 @@ def fov_coverage(population, clear_poly):
             # join all other member polys together
             m_union = ops.cascaded_union(member_without_poly)
 
-            # remove overlap with other fovs from fov
-            fov_wo_overlap = fov.symmetric_difference(
-                m_union).difference(m_union)
+            # sometimes this stuff crashes for no real great reason
+            try:
+                # remove overlap with other fovs from fov
+                fov_wo_overlap = fov.symmetric_difference(
+                    m_union).difference(m_union)
 
-            # find intersection of fov with clear_poly
-            intersection = fov_wo_overlap.intersection(clear_poly)
-            # get the area of that intersection
-            areas[i, j] = intersection.area
+                try:
+                    # find intersection of fov with clear_poly
+                    intersection = fov_wo_overlap.intersection(clear_poly)
+                    # get the area of that intersection
+                    areas[i, j] = intersection.area
+                except AttributeError as e:
+                    print(e)
+                    areas[i, j] = 0
+            except TopologicalError as e:
+                print(e)
+                print('something messed up in the geometry model...')
+                areas[i, j] = 0
 
     # now normalize these areas so we don't get huge numbers
-    ideal_poly = obs_poly(c.sat_lon, c.sat_lat)
-    ideal_area = polygon_area(ideal_poly)
+    #ideal_poly = obs_poly(c.sat_lon, c.sat_lat)
+    #ideal_area = polygon_area(ideal_poly)
     # note that the normalization means we're measuring our result relative to
     # how much area would be covered if there were no clouds, everything was
     # light, and we were looking straight down for every FoV.
 
     # that's not a stellar metric, but I'm not sure what else to use.
-    return areas / ideal_area
+    return areas # / ideal_area
 
 
 def test_fov_coverage():
-    # make some random population
-    n_fovs = 5
-    n_members = 1
-    population = np.empty((n_members, n_fovs), dtype=tuple)
-    for m in range(n_members):
-        for f in range(n_fovs):
-            lon = 360 * np.random.rand() - 180
-            lat = 180 * np.random.rand() - 90
-            population[m, f] = (lon, lat)
-
     # get some test day's cloud data
     from optcov import earth_data
     clear_poly = earth_data.big_clear_poly
+    clear_polys = earth_data.clear_polys
+    # get some random population
+    from optcov import genetics
+    population = genetics.random_population(clear_polys)
 
     _ = fov_coverage(population, clear_poly)
     # not sure how we can test if it's good, but this at least checks it works
