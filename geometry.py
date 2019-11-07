@@ -15,7 +15,7 @@ from shapely.geometry import Polygon
 from shapely.errors import TopologicalError
 import shapely.ops as ops
 
-from . import constants as c
+import constants as c
 
 # we'll have some rounding error to deal with at certain points
 accuracy = 1e-8
@@ -622,11 +622,11 @@ def fov_coverage(population, clear_poly):
 
 def test_fov_coverage():
     # get some test day's cloud data
-    from .. import earth_data
+    import earth_data
     clear_poly = earth_data.big_clear_poly
     clear_polys = earth_data.clear_polys
     # get some random population
-    from .. import genetics
+    import genetics
     population = genetics.random_population(clear_polys)
 
     _ = fov_coverage(population, clear_poly)

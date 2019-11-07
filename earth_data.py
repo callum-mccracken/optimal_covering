@@ -14,9 +14,9 @@ import fiona
 import cartopy.io.shapereader as shpreader
 from shapely.prepared import prep
 
-from optcov.utils import constants as c
-from optcov.utils import geometry as g
-from optcov.utils.timer import timeit
+import constants as c
+import geometry as g
+from timer import timeit
 
 
 def get_land_mask():
