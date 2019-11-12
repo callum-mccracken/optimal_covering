@@ -67,9 +67,10 @@ def test_plotting():
 
 
 def test_optimization():
+    print("importing...")
     import genetics
     import plot_funcs
-    best_points = genetics.do_genetics(dtime)
+    best_points = genetics.do_genetics()
     print("Best spots to point:")
     print(best_points)
 

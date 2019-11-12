@@ -487,8 +487,8 @@ def polygon_area(poly):
 
 
 def test_polygon_area():
-    # Wyoming is a pretty square state, let's use it as a test
-    real_area = 253600  # km^2 (sorry Americans)
+    # Wyoming (wy) is a pretty square state, let's use it as a test
+    real_area = 253600  # units are km^2 (sorry Americans)
     wy_corners = [
         (-111.049623, 44.993649),
         (-104.057802, 44.997317),
@@ -499,7 +499,8 @@ def test_polygon_area():
     wy = Polygon(wy_corners)
     wy_area = polygon_area(wy)
     percent_error_ok = 1
-    if abs(wy_area - real_area) / real_area * 100 > percent_error_ok:
+    percent_error = abs(wy_area - real_area) / real_area * 100
+    if percent_error > percent_error_ok:
         print(real_area, wy_area, abs(wy_area-real_area))
         raise ValueError("error calculation is off!")
     print("passed test_polygon_area")
@@ -562,7 +563,8 @@ def fov_coverage(population, clear_poly):
 
     The population is just a set of sets of (lon, lat) points.
 
-    clear_poly is a Polygon that contains all the clear area
+    clear_poly is a shape that contains all the clear area,
+    maybe a Polygon but more likely a MultiPolygon or GeometryCollection
 
     e.g. a population with 3 members, each with 4 fovs, might look like:
 
@@ -606,7 +608,7 @@ def fov_coverage(population, clear_poly):
                     areas[i, j] = 0
             except TopologicalError as e:
                 print(e)
-                print('something messed up in the geometry model...')
+                print('something messed up in the geometry module...')
                 areas[i, j] = 0
 
     # now normalize these areas so we don't get huge numbers
