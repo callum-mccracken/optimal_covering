@@ -257,5 +257,5 @@ def perform_genetics(dtime):
     return population[best_match_idx]  # <- array of 'best' FOVs
 
 if __name__ == "__main__":
-    import optcov.utils.constants as c
+    import constants as c
     perform_genetics(c.dtime)
