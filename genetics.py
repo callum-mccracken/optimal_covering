@@ -9,6 +9,7 @@ import geometry
 import sampling
 import plot_funcs
 import earth_data
+import constants
 
 num_generations = 10
 num_parents = 10
@@ -192,13 +193,14 @@ def mutation(offspring, offspring_fitness, clear_polys):
     return offspring
 
 
-def perform_genetics(dtime):
+def do_genetics():
     """
     This is the function which does the main process in the genetic algorithm
     - generate initial population
     - evolve
     - repeat until you're done a number of iterations
     """
+    dtime = constants.dtime
     # get clear polygons at the given time
     print("getting clear polys")
     clear_polys = earth_data.clear_polys
@@ -257,5 +259,4 @@ def perform_genetics(dtime):
     return population[best_match_idx]  # <- array of 'best' FOVs
 
 if __name__ == "__main__":
-    import constants as c
-    perform_genetics(c.dtime)
+    do_genetics()

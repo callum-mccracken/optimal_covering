@@ -16,10 +16,12 @@ def test_earth():
         result = "\b" if earth_data.is_light(lon, lat, now) else "not"
         input("Manual check: Is it "+ result +" light right now at lon: " + \
               str(lon) + " lat: " + str(lat) + "? Hit enter when done: ")
+    
     # download clouds for one month
     earth_data.download_merra_data(dtime.year, dtime.month)
     # get clear polygons for a specific time
     polys = earth_data.get_clear_polys(dtime)
+    # not sure how to actually test this, I assume if it runs it's fine
     if polys is not None:
         print("passed test_earth")
     else:
@@ -66,7 +68,7 @@ def test_plotting():
 
 def test_optimization():
     import genetics
-    genetics.perform_genetics(dtime)
+    genetics.do_genetics(dtime)
 
 
 if __name__ == "__main__":
