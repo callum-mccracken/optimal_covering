@@ -248,7 +248,7 @@ def do_genetics():
 
     # Get the best solution after finishing all generations.
     print("Generation : ", generation+1)
-    pop_fitness = calc_fitness(population, clear_polys)
+    pop_fitness = calc_fitness(population, clear_poly)
     member_fitness = np.sum(pop_fitness, axis=1)
     best_fitness = np.max(member_fitness)
     # if multiple maxes, take first option

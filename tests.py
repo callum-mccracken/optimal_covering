@@ -68,8 +68,10 @@ def test_plotting():
 
 def test_optimization():
     import genetics
-    genetics.do_genetics(dtime)
-
+    import plot_funcs
+    best_points = genetics.do_genetics(dtime)
+    print("Best spots to point:")
+    print(best_points)
 
 if __name__ == "__main__":
     #test_earth()
