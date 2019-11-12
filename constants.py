@@ -81,8 +81,8 @@ merra_dir = join(earth_dir, 'MERRA')
 # path to save images
 png_dir = realpath(join(dirname(__file__), 'images_and_output'))
 
-# ensure everything we need now exists, we'll make output dir later
-for d in [merra_dir, earth_dir]:
+# ensure they all exist
+for d in [earth_dir, merra_dir, png_dir]:
     if not exists(d):
         mkdir(d)
 

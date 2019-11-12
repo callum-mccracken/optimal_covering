@@ -203,8 +203,8 @@ def perform_genetics(dtime):
     print("getting clear polys")
     clear_polys = earth_data.clear_polys
     clear_poly = earth_data.big_clear_poly
-    print("plotting clear area")
-    plot_funcs.plot_clear(dtime, clear_polys=clear_polys)
+    #print("plotting clear area")
+    #plot_funcs.plot_clear(dtime, clear_polys=clear_polys)
 
     # generate population
     print("generating population")
