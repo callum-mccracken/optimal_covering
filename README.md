@@ -1,28 +1,37 @@
-# optcov
+# optimal_coverings
 
-This is a smaller version of optimal_coverings, that is a lot easier to deal with.
+An attempt to solve the following problem:
+
+We have a region on the Earth we want to observe with a satellite in a finite
+number of observations. Where should we look?
+
+Or more generally, we have some shape we want to cover with a finite number of
+other, smaller shapes. Where should we place those smaller shapes?
+
+# Getting Started
+
+First, `git clone` this. Or use Docker, [TODO: however exactly that's done]
+
+# Python Modules
+
+## Ones you should take a look at:
+
+- `tests.py`: run this first, to test that everything's working well
+- `genetics.py`: performs genetic algorithm
+
+## Hopefully you shouldn't need to open these:
+
+- `constants.py`: stores constant parameters / paths / ...
+- `earth_data.py`: downloads earth data, finds observable spots
+- `plot_funcs.py`: plotting functions
+- `geometry.py`: deals with satellite / Earth system geometry
+- `sampling.py`: a few functions related to random sampling
+- `timer.py`: a handy-dandy timer function to use as a decorator
+
+# Important Notes
+
+- For consistency, always write geometric coordinates as (lon, lat)
+- Recall that longitudes range from -180 to 180, latitudes from -90 to 90
 
 
-## Major Functions:
 
-- Download earth data, find observable spots
-- Specify choices of points in a more user-friendly way
-- Geometry work is dealt with in the background ONLY
-- Easier to find relevant sections for machine learning
-  - e.g. genetics module
-
-## Clear Map Generation
-
-How to do that...
-
-## Initial population generation
-
-How to do that...
-
-## How the current genetic algorithm code works
-
-...
-
-## Conventions to Follow for Consistency
-
-- Always write geometric coordinates as (lon, lat)
