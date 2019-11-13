@@ -1,9 +1,7 @@
-
 import os
 from os.path import join, exists, expanduser
 import datetime as dt
 from calendar import monthrange
-from argparse import Namespace
 
 import numpy as np
 import netCDF4

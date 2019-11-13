@@ -1,11 +1,9 @@
 """contains functions for testing each function in each module"""
-from constants import dtime
-from datetime import datetime
-
-
 def test_earth():
     print("working on: test_earth")
     import earth_data
+    from constants import dtime
+    from datetime import datetime
     # check that land data works -- we should only need to run this once,
     # but best to make sure it works every time
     earth_data.get_land_mask()
@@ -57,6 +55,8 @@ def test_utils():
 
 
 def test_plotting():
+    from constants import dtime
+    from datetime import datetime
     import plot_funcs
     from genetics import random_population
     from earth_data import get_clear_polys
@@ -74,8 +74,37 @@ def test_optimization():
     print("Best spots to point:")
     print(best_points)
 
+def test_imports():
+    # builtins
+    import datetime
+    import os
+    from calendar import monthrange
+    import itertools
+    import random
+    import time
+
+    # 3rd party
+    import numpy
+    import cartopy
+    import netCDF4
+    import shapely
+    import fiona
+    import matplotlib
+
+    # custom
+    import constants
+    import geometry
+    import timer
+    import geometry
+    import sampling
+    import plot_funcs
+    import earth_data
+
+
+
 if __name__ == "__main__":
+    test_imports()
     #test_earth()
     #test_utils()
     #test_plotting()
-    test_optimization()
+    #test_optimization()

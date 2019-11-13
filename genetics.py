@@ -2,7 +2,6 @@ import numpy as np
 from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely.errors import TopologicalError
 import itertools
-import multiprocessing
 
 from timer import timeit
 import geometry

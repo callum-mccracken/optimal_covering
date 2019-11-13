@@ -15,7 +15,7 @@ def some_func(x):
 some_func(5)
 
 # prints function name and execution time
->>> some_func  12.09 ms
+>>> "some_func"  12.09 ms
 """
 from time import time
 
