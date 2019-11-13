@@ -312,7 +312,7 @@ try:
 except OSError:
     print("cloud data doesn't seem to exist for the following time:")
     print(c.dtime.strftime("%Y %m %d, %H:00"))
-    print("so I'll download that month's data if you don't mind.")
+    print("so I'm now downloading that month's data.")
     download_merra_data(c.dtime.year, c.dtime.month)
     print("initializing clear polygons")
     clear_polys = get_clear_polys(c.dtime)

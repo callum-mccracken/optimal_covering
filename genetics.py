@@ -8,7 +8,7 @@ from timer import timeit
 import geometry
 import sampling
 import plot_funcs
-import earth_data
+from earth_data import clear_polys, big_clear_poly
 import constants
 
 num_generations = 10
@@ -20,7 +20,7 @@ num_mutations = 5
 pop_size = (num_members, num_fovs)
 
 
-def random_population(clear_polys):
+def random_population():
     """
     this will generate random fovs, tuples of the form (lon, lat)
     (but not super random, they should at least be clear spots!)
@@ -48,7 +48,7 @@ def random_population(clear_polys):
 
 
 @timeit
-def calc_fitness(population, clear_polys, fitness_type="coverage"):
+def calc_fitness(population, fitness_type="coverage"):
     """
     General fitness function to be maximized.
 
@@ -59,12 +59,10 @@ def calc_fitness(population, clear_polys, fitness_type="coverage"):
 
     - fitness_type is a string --> which type of fitness calculation to do
 
-    - clear_polys is required for the "coverage" fitness_type
-
     - feel free to add your own elif cases if you want extra fitness types
     """
     if fitness_type == "coverage":
-        fov_fitness = geometry.fov_coverage(population, clear_polys)
+        fov_fitness = geometry.fov_coverage(population, big_clear_poly)
     else:
         raise ValueError("invalid fitness_type" + str(fitness_type))
     # this returns the fitness at the level of fovs, if you're looking
@@ -102,41 +100,33 @@ def offspring(parents, parental_fitness, algorithm="best_combination"):
         # if we took all possible arrangements, we would have
         # 2n_fovs choose n_fovs, which is not feasible to calculate
         n = 10
-        # all possible combinations of parents (may be large, not HUGE)
-        parent_pairings = list(itertools.combinations(parents, 2))
-        fov_combos = []
-        for pairing in parent_pairings:
-            fov_combos.append(sampling.sampled(*pairing, n))
-
-        fov_combos = np.array(fov_combos)
+        # all possible pairs of parents
+        pairs = list(itertools.combinations(parents, 2))
+        # n possible new members taking some fovs from each parent
+        fov_combos = np.array([sampling.sampled(*p, n) for p in pairs])
 
         print("checking", len(fov_combos), "pairings")
         print("each with", n, "arrangements")
-        # this thing is a calculation of population fitness for all our
-        # n_parents choose 2 pairings
-        combos_fitness = []
-        for c in fov_combos:
-            combo_fitness = calc_fitness(c, earth_data.big_clear_poly)
-            combos_fitness.append(combo_fitness)
 
-        # now we must pick the best arrangement (or combo) in each pairing
+        # calculate fitness of each combination, this takes quite a while
+        combos_fitness = [calc_fitness(combo) for combo in fov_combos]
+
+        # figure out which combinations were the best
         best_combos = []
         fitnesses = []
         for pair_index, pair_fitnesses in enumerate(combos_fitness):
-            fovs = fov_combos[pair_index]
-
-            # do a sum, so we get the total fitness of each combo,
-            # not just the fitness of each individual FoV
-            sum_fitnesses = np.sum(pair_fitnesses, axis=1)
-
-            # sort/flip so start is greatest fitness, last is least
-            fitness_order = np.flip(sum_fitnesses.argsort())
-
+            # members we generated for this pairing
+            members = fov_combos[pair_index]
+            # fitnesses of these members
+            member_fitnesses = np.sum(pair_fitnesses, axis=1)
+            # order of fitness elements from greatest to least
+            fitness_order = np.flip(member_fitnesses.argsort())
             # append fovs and fitnesses in fitness order
-            best_combos.append([fovs[i] for i in fitness_order])
-            fitnesses.append([sum_fitnesses[i] for i in fitness_order])
+            best_combos.append([members[i] for i in fitness_order])
+            fitnesses.append([member_fitnesses[i] for i in fitness_order])
         best_combos = np.array(best_combos)
         fitnesses = np.array(fitnesses)
+
         # now best_combos[i][j] is the j'th best arrangement
         # of the i'th pairing, and fitnesses[i][j] is corresponding fitness
         # so now set the offspring
@@ -146,7 +136,7 @@ def offspring(parents, parental_fitness, algorithm="best_combination"):
 
 
 @timeit
-def mutation(offspring, offspring_fitness, clear_polys):
+def mutation(offspring, offspring_fitness):
     """
     Mutation changes members in each offspring collection randomly.
     Note that offspring fovs are already ordered from best to worst!
@@ -200,17 +190,14 @@ def do_genetics():
     - evolve
     - repeat until you're done a number of iterations
     """
-    dtime = constants.dtime
     # get clear polygons at the given time
     print("getting clear polys")
-    clear_polys = earth_data.clear_polys
-    clear_poly = earth_data.big_clear_poly
     #print("plotting clear area")
     #plot_funcs.plot_clear(dtime, clear_polys=clear_polys)
 
     # generate population
     print("generating population")
-    population = random_population(clear_polys)
+    population = random_population()
 
     best_fitnesses = []  # to store best fitness of each generation
 
@@ -218,7 +205,7 @@ def do_genetics():
     for generation in range(num_generations):
         print("generation", generation)
         # calculate fitness
-        pop_fitness = calc_fitness(population, clear_poly)
+        pop_fitness = calc_fitness(population)
         member_fitness = np.sum(pop_fitness, axis=1)
 
         # Find the current best member
@@ -230,9 +217,8 @@ def do_genetics():
         print("Best fitness:", best_fitness, "index", best_match_idx)
 
         # plot the best member
-        plot_funcs.plot_member(
-            best_member, generation, clear_polys, dtime, show=False)
-        
+        plot_funcs.plot_member(best_member, generation, show=False)
+
         # get parents
         parents, parental_fitness = select_parents(population, member_fitness)
 
@@ -240,7 +226,7 @@ def do_genetics():
         kids = offspring(parents, parental_fitness)
 
         # Add some variations to the offspring, i.e. mutations
-        offspring_mutation = mutation(kids, pop_fitness, clear_polys)
+        offspring_mutation = mutation(kids, pop_fitness)
 
         # Create the new population based on the parents and offspring
         population[0:num_parents] = parents
@@ -248,7 +234,7 @@ def do_genetics():
 
     # Get the best solution after finishing all generations.
     print("Generation : ", generation+1)
-    pop_fitness = calc_fitness(population, clear_poly)
+    pop_fitness = calc_fitness(population)
     member_fitness = np.sum(pop_fitness, axis=1)
     best_fitness = np.max(member_fitness)
     # if multiple maxes, take first option

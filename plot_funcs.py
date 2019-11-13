@@ -9,7 +9,7 @@ import geometry as g
 from timer import timeit
 
 
-def plot_clear(dtime, clear_polys=None, show=True):
+def plot_clear(show=True):
     """
     Show an orthographic projection of clear area
 
@@ -22,27 +22,26 @@ def plot_clear(dtime, clear_polys=None, show=True):
     ax.add_feature(cartopy.feature.OCEAN, zorder=0)
     ax.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
     ax.add_feature(cartopy.feature.BORDERS, zorder=0, edgecolor='black')
-    ax.add_feature(Nightshade(dtime, alpha=0.2))
+    ax.add_feature(Nightshade(c.dtime, alpha=0.2))
 
     # add clear polys
-    if clear_polys is None:
-        clear_polys = earth_data.get_clear_polys(dtime)
+    clear_polys = earth_data.clear_polys
     print("adding", len(clear_polys), "clear polygons to plot")
     ax.add_geometries(clear_polys, crs=c.lonlat, facecolor='g')
 
     # show the plot if desired
     if show:
         plt.show()
-
-    # return the axis so we can plot more things overtop if we want
-    return ax
+    else:
+        # return the axis so we can plot more things overtop if we want
+        return ax
 
 
 @timeit
-def plot_member(member, generation, clear_polys, dtime, show=True):
+def plot_member(member, generation, show=True):
     """plots one set of FOVs"""
     # plot clear_polys first
-    ax = plot_clear(dtime, clear_polys=clear_polys, show=False)
+    ax = plot_clear(show=False)
 
     # then plot member on the same axis
     member_polys = [g.obs_poly(lon, lat) for lon, lat in member]
