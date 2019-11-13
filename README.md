@@ -10,7 +10,9 @@ other, smaller shapes. Where should we place those smaller shapes?
 
 # Getting Started
 
-First, `git clone` this. Or use Docker, [TODO: however exactly that's done]
+First, fork this repository. Or use Docker, [TODO: however exactly that's done]
+
+All dependencies are listed in the `environment.yml` file.
 
 # Python Modules
 
