@@ -23,3 +23,10 @@
 **/values.dev.yaml
 LICENSE
 README.md
+**.npy
+**.nc4
+**.png
+**.pyc
+**.pyo
+**.DS_Store
+**-checkpoint.ipynb*
