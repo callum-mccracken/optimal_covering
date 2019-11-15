@@ -1,0 +1,12 @@
+name: optcov
+channels:
+  - defaults
+dependencies:
+  - cartopy
+  - netcdf4
+  - shapely
+  - matplotlib
+  - fiona
+  - nb_conda
+prefix: /Users/callum/opt/anaconda3/envs/optcov
+
