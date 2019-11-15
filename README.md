@@ -1,4 +1,4 @@
-# optimal_coverings
+# optimal_covering
 
 An attempt to solve the following problem:
 
