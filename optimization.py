@@ -10,19 +10,20 @@ def clear_poly(dtime):
     return big_clear_poly
 
 
-def cost(twoD_arr_of_points, big_clear_poly):
-    return geometry.fov_coverage(twoD_arr_of_points, big_clear_poly)
+def cost(points, big_clear_poly):
+    return geometry.fov_coverage([points], big_clear_poly)
 
 def random_points():
-    lons = 360 * np.random.rand() - 180
-    lats = 180 * np.random.rand() - 90
-    points = [(lon, lat) for lon, lat in zip(lons, lats)]
+    N = 100
+    lons = 360 * np.random.rand(N) - 180
+    lats = 180 * np.random.rand(N) - 90
+    points = [(lon, lat) for lon, lat in zip(list(lons), list(lats))]
     # doesn't hurt to make sure all the points you pick are visible
-    points = [point for point in points if geometry.visible(*point)]
+    points = [(lon, lat) for lon, lat in points if geometry.visible(lon, lat)]
+    print(points)
     if len(points) == 0:
         raise ValueError("no points visible")
-    # 2d array for cost function evaluation purposes
-    return np.array([points])
+    return points
 
 def optimize():
     # pick a time
