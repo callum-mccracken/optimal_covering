@@ -247,5 +247,7 @@ def do_genetics(dtime, clear_polys, big_clear_poly):
     best_match_idx = list(member_fitness).index(best_fitness)
     best_member = population[best_match_idx]
     best_fitnesses.append(best_fitness)
+    # plot it and display the final graph
+    plot_funcs.plot_points(best_member, "best", dtime)
 
     return population[best_match_idx]  # <- array of 'best' points to look
