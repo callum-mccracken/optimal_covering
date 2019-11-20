@@ -7,10 +7,10 @@ from timer import timeit
 import geometry
 import sampling
 import plot_funcs
-from earth_data import clear_polys, big_clear_poly
+from earth_data import get_clear
 import constants
 
-num_generations = 10
+num_generations = 2
 num_parents = 10
 num_members = 20
 num_fovs = 30
@@ -19,10 +19,12 @@ num_mutations = 5
 pop_size = (num_members, num_fovs)
 
 
-def random_population():
+def random_population(clear_polys):
     """
     this will generate random fovs, tuples of the form (lon, lat)
     (but not super random, they should at least be clear spots!)
+
+    clear_polys is a list of Polygons which define the clear area
     """
     # we'll return this at the end
     fovs = np.empty(pop_size, dtype=tuple)
@@ -47,7 +49,7 @@ def random_population():
 
 
 @timeit
-def calc_fitness(population, fitness_type="coverage"):
+def calc_fitness(population, big_clear_poly, fitness_type="coverage"):
     """
     General fitness function to be maximized.
 
@@ -55,6 +57,8 @@ def calc_fitness(population, fitness_type="coverage"):
     of the population.
 
     - population is a 2d array of (lon, lat) tuples.
+
+    - big_clear_poly is the union of all clear spots on the earth
 
     - fitness_type is a string --> which type of fitness calculation to do
 
@@ -71,9 +75,13 @@ def calc_fitness(population, fitness_type="coverage"):
 
 
 def select_parents(population, member_fitness):
-    # Select the best individuals in the current generation as parents
-    # for producing the offspring of the next generation.
+    """Select the best individuals in the current generation as parents
+    for producing the offspring of the next generation.
+    
+    population = list of lists of (lon, lat) tuples
 
+    member_fitness = list of floats, fitnesses of each member of population
+    """
     # reorder the population in terms of fitness, largest to smallest
     fitness_order = list(reversed(member_fitness.argsort()))
     # take the num_parents best ones
@@ -83,16 +91,20 @@ def select_parents(population, member_fitness):
 
 
 @timeit
-def offspring(parents, parental_fitness, algorithm="best_combination"):
+def offspring(parents, parental_fitness, big_clear_poly,
+              algorithm="best_combination"):
     """
     Get offspring given parents and their fitness
 
-    I've left this open to adjustment too, feel free to add other offpring
-    algorithms, etc.
+    feel free to add other offpring algorithms, etc.
+
+    parents = slice of population, list of lists of (lon, lat) tuples
+
+    parental_fitness = 2d array of floats, fitness of each parent's points
     """
     offspring_size = (num_members-num_parents, num_fovs)
     offspring_arr = np.empty(offspring_size, dtype=tuple)
-    
+
     if algorithm == 'best_combination':
         # take possible combinations of parents
         # n of the possible arrangements of the fovs from parents
@@ -108,7 +120,8 @@ def offspring(parents, parental_fitness, algorithm="best_combination"):
         print("each with", n, "arrangements")
 
         # calculate fitness of each combination, this takes quite a while
-        combos_fitness = [calc_fitness(combo) for combo in fov_combos]
+        combos_fitness = [calc_fitness(combo, big_clear_poly)
+                          for combo in fov_combos]
 
         # figure out which combinations were the best
         best_combos = []
@@ -135,7 +148,7 @@ def offspring(parents, parental_fitness, algorithm="best_combination"):
 
 
 @timeit
-def mutation(offspring, offspring_fitness):
+def mutation(offspring, offspring_fitness, clear_polys):
     """
     Mutation changes members in each offspring collection randomly.
     Note that offspring fovs are already ordered from best to worst!
@@ -182,66 +195,60 @@ def mutation(offspring, offspring_fitness):
     return offspring
 
 
-def do_genetics():
+def do_genetics(dtime, clear_polys, big_clear_poly):
     """
     This is the function which does the main process in the genetic algorithm
     - generate initial population
     - evolve
     - repeat until you're done a number of iterations
     """
-    # get clear polygons at the given time
-    print("getting clear polys")
-    #print("plotting clear area")
-    #plot_funcs.plot_clear(dtime, clear_polys=clear_polys)
-
     # generate population
     print("generating population")
-    population = random_population()
+    population = random_population(clear_polys)
 
     best_fitnesses = []  # to store best fitness of each generation
 
     # now iterate and 'evolve'
     for generation in range(num_generations):
         print("generation", generation)
-        # calculate fitness
-        pop_fitness = calc_fitness(population)
+
+        # calculate fitness, 2d array of floats
+        pop_fitness = calc_fitness(population, big_clear_poly)
         member_fitness = np.sum(pop_fitness, axis=1)
 
         # Find the current best member
         best_fitness = np.max(member_fitness)
         best_fitnesses.append(best_fitness)
-        # if multiple maxes, take first option
+        # (if multiple maxes, take first option)
         best_match_idx = list(member_fitness).index(best_fitness)
         best_member = population[best_match_idx]
         print("Best fitness:", best_fitness, "index", best_match_idx)
 
         # plot the best member
-        plot_funcs.plot_member(best_member, generation, show=False)
+        title = "gen_{}".format(generation)
+        plot_funcs.plot_points(best_member, title, dtime, show=False)
 
         # get parents
         parents, parental_fitness = select_parents(population, member_fitness)
 
-        # Generate the next generation using parents
-        kids = offspring(parents, parental_fitness)
+        # generate the next generation using parents
+        kids = offspring(parents, parental_fitness, big_clear_poly)
 
-        # Add some variations to the offspring, i.e. mutations
-        offspring_mutation = mutation(kids, pop_fitness)
+        # mutate the offspring
+        offspring_mutation = mutation(kids, pop_fitness, clear_polys)
 
-        # Create the new population based on the parents and offspring
+        # create the new population based on the parents and offspring
         population[0:num_parents] = parents
         population[num_parents:] = offspring_mutation
 
-    # Get the best solution after finishing all generations.
+    # get the best solution after finishing all generations.
     print("Generation : ", generation+1)
-    pop_fitness = calc_fitness(population)
+    pop_fitness = calc_fitness(population, big_clear_poly)
     member_fitness = np.sum(pop_fitness, axis=1)
     best_fitness = np.max(member_fitness)
-    # if multiple maxes, take first option
+    # (if multiple maxes, take first option)
     best_match_idx = list(member_fitness).index(best_fitness)
     best_member = population[best_match_idx]
     best_fitnesses.append(best_fitness)
 
-    return population[best_match_idx]  # <- array of 'best' FOVs
-
-if __name__ == "__main__":
-    do_genetics()
+    return population[best_match_idx]  # <- array of 'best' points to look

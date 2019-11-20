@@ -5,12 +5,9 @@ Satellite position, radius of earth, paths, etc.
 """
 import numpy as np
 from datetime import datetime
-import cartopy.crs as ccrs  # this darn thing takes like 10 seconds to import
+import cartopy.crs as ccrs 
 from os.path import realpath, join, dirname, exists
 from os import mkdir
-
-# the time will be constant over a run, I assume
-dtime = datetime(2015, 4, 4, hour=22)
 
 """SATELLITE PARAMETERS"""
 

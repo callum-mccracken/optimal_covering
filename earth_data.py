@@ -56,10 +56,10 @@ def get_clouds(dtime, interp_time=None):
 
     # check if it exists
     if not exists(fname):
-        raise IOError("Specified MERRA data file {0} "
-                      "does not exist".format(fname))
-    else:
-        print("Reading cloud data from MERRA file", fname)
+        print("Cloud data does not exist... Downloading that month.")
+        download_merra_data(dtime.year, dtime.month)
+
+    print("Reading cloud data from MERRA file", fname)
 
     # we'll save cloud data in a Dataset object
     merra = netCDF4.Dataset(fname, 'r')
@@ -259,6 +259,8 @@ def download_merra_data(year, month):
     print("this will take approximately forever")
 
     # go to save directory
+    if not os.path.exists(c.merra_dir):
+        os.mkdir(c.merra_dir)
     os.chdir(c.merra_dir)
     # path format for files we want to download
     wget_format = (
@@ -281,13 +283,13 @@ def download_merra_data(year, month):
                 year, month, day) +
             "--content-disposition " +
             wget_format.format(year=year, month=month, day=day))
-        print("Starting day", day)
+        print("Done day", day)
 
     # rename / move downloaded files
     for fname in os.listdir():
         # for some reason all the files download with extension ".nc4.nc"
         # so rename all .nc4.nc files as just .nc4, then move them
-        if fname.endswith("nc4.nc"):
+        if fname.endswith("nc4.nc") and fname.contains("{}{:02}".format(year, month)):
             new_filename = fname[:-3]
             new_dir = join("{}".format(year), "{:02}".format(month))
             if not exists(str(year)):
@@ -302,16 +304,16 @@ def download_merra_data(year, month):
     # at the end return us to the cwd in case other code needs to be run
     os.chdir(cwd)
 
-try:
-    # get clouds for a day:
-    print("initializing clear polygons")
-    clear_polys = get_clear_polys(c.dtime)
+
+def get_clear(dtime):
+    """really gets (clear_polys, big_clear_poly)
+
+    clear_polys is a list of polygons which define where the clear area is
+
+    big_clear_poly is the union of those
+
+    dtime = datetime instance
+    """
+    clear_polys = get_clear_polys(dtime)
     big_clear_poly = cascaded_union(clear_polys)
-except OSError:
-    print("cloud data doesn't seem to exist for the following time:")
-    print(c.dtime.strftime("%Y %m %d, %H:00"))
-    print("so I'm now downloading that month's data.")
-    download_merra_data(c.dtime.year, c.dtime.month)
-    print("initializing clear polygons")
-    clear_polys = get_clear_polys(c.dtime)
-    big_clear_poly = cascaded_union(clear_polys)
+    return clear_polys, big_clear_poly
