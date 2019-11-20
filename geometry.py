@@ -623,14 +623,15 @@ def fov_coverage(population, clear_poly):
 
 
 def test_fov_coverage():
-    # get some test day's cloud data
     import earth_data
-    clear_poly = earth_data.big_clear_poly
-    clear_polys = earth_data.clear_polys
-    # get some random population
+    from datetime import datetime
     import genetics
+    # get some test day's cloud data
+    dtime = datetime(2015, 5, 1)
+    clear_polys, clear_poly = earth_data.get_clear(dtime)
+    # get some random population
     population = genetics.random_population(clear_polys)
-
+    # get coverage
     _ = fov_coverage(population, clear_poly)
-    # not sure how we can test if it's good, but this at least checks it works
+    # not sure how we can test if it's good, but this at least checks it runs
     print("passed test_fov_coverage")
