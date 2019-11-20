@@ -1,11 +1,12 @@
+import os
+
 import matplotlib.pyplot as plt
-from os.path import join, realpath, dirname
 import cartopy
 from cartopy.feature.nightshade import Nightshade
 
 import earth_data
-import constants as c
-import geometry as g
+import constants
+import geometry
 from timer import timeit
 
 
@@ -23,7 +24,7 @@ def plot_clear(dtime, show=True):
     print('plotting clear area')
 
     # general earth setup
-    ax = plt.axes(projection=c.ortho)
+    ax = plt.axes(projection=constants.ortho)
     ax.add_feature(cartopy.feature.OCEAN, zorder=0)
     ax.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
     ax.add_feature(cartopy.feature.BORDERS, zorder=0, edgecolor='black')
@@ -32,7 +33,7 @@ def plot_clear(dtime, show=True):
     # add clear polys
     clear_polys, _ = earth_data.get_clear(dtime)
     print("adding", len(clear_polys), "clear polygons to plot")
-    ax.add_geometries(clear_polys, crs=c.lonlat, facecolor='g')
+    ax.add_geometries(clear_polys, crs=constants.lonlat, facecolor='g')
 
     # show the plot if desired
     if show:
@@ -58,14 +59,14 @@ def plot_points(points, title, dtime, show=True):
     ax = plot_clear(dtime, show=False)
 
     # then plot observations on the same axis
-    polys = [g.obs_poly(lon, lat) for lon, lat in points]
-    ax.add_geometries(polys, crs=c.lonlat, edgecolor='r',
+    polys = [geometry.obs_poly(lon, lat) for lon, lat in points]
+    ax.add_geometries(polys, crs=constants.lonlat, edgecolor='r',
                       facecolor='', alpha=0.8)
 
     if show:
         plt.show()
     else:
-        fname = join(c.png_dir, "{}.png".format(title))
+        fname = os.path.join(constants.png_dir, "{}.png".format(title))
         plt.savefig(fname, dpi=300)
         plt.cla()
         plt.clf()

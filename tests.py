@@ -2,8 +2,8 @@
 def test_earth():
     print("working on: test_earth")
     import earth_data
-    from constants import dtime
     from datetime import datetime
+    dtime = datetime(2015, 5, 1)
     # check that land data works -- we should only need to run this once,
     # but best to make sure it works every time
     earth_data.get_land_mask()
@@ -55,24 +55,27 @@ def test_utils():
 
 
 def test_plotting():
-    from constants import dtime
     from datetime import datetime
     import plot_funcs
     from genetics import random_population
     from earth_data import get_clear_polys
+    dtime = datetime(2015, 5, 1)
     clear_polys = get_clear_polys(dtime)
     population = random_population(clear_polys)
     # this will also plot the clear polys, no need to test those separately
-    plot_funcs.plot_member(population[0], 1, clear_polys, dtime)
+    plot_funcs.plot_points(population[0], "title", dtime)
 
 
 def test_optimization():
-    print("importing...")
     import genetics
-    import plot_funcs
-    best_points = genetics.do_genetics()
+    import earth_data
+    from datetime import datetime
+    dtime = datetime(2015, 5, 1)
+    clear_polys, big_clear_poly = earth_data.get_clear(dtime)
+    best_points = genetics.do_genetics(dtime, clear_polys, big_clear_poly)
     print("Best spots to point:")
     print(best_points)
+
 
 def test_imports():
     # builtins
@@ -101,10 +104,10 @@ def test_imports():
     import earth_data
 
 
-
 if __name__ == "__main__":
     test_imports()
     test_earth()
     test_utils()
     test_plotting()
     test_optimization()
+    print("passed all tests!")

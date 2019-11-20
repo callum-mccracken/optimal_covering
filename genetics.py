@@ -1,14 +1,11 @@
 import numpy as np
-from shapely.geometry import Polygon, MultiPolygon, Point
-from shapely.errors import TopologicalError
+from shapely.geometry import Point
 import itertools
 
 from timer import timeit
 import geometry
 import sampling
 import plot_funcs
-from earth_data import get_clear
-import constants
 
 num_generations = 2
 num_parents = 10

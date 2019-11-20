@@ -289,7 +289,7 @@ def download_merra_data(year, month):
     for fname in os.listdir():
         # for some reason all the files download with extension ".nc4.nc"
         # so rename all .nc4.nc files as just .nc4, then move them
-        if fname.endswith("nc4.nc") and fname.contains("{}{:02}".format(year, month)):
+        if fname.endswith("nc4.nc") and "{}{:02}".format(year, month) in fname:
             new_filename = fname[:-3]
             new_dir = join("{}".format(year), "{:02}".format(month))
             if not exists(str(year)):
