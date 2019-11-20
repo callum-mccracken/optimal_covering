@@ -247,7 +247,7 @@ def download_merra_data(year, month):
     # record credentials if they don't exist
     if not exists(".netrc"):
         user = "CallumMcCracken"  # input("Enter earthdata.nasa.gov username: ")
-        password = "ThisIsMyV3ryStrongPassword"  # input("Enter password: ")
+        password = "1AmThePotatoMan"  # input("Enter password: ")
         os.system("touch .netrc")
         os.system(
             'echo "machine urs.earthdata.nasa.gov login {} '.format(user) +
