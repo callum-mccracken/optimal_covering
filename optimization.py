@@ -11,7 +11,7 @@ def clear_poly(dtime):
 
 
 def cost(points, big_clear_poly):
-    return geometry.fov_coverage([points], big_clear_poly)
+    return geometry.fov_coverage(points, big_clear_poly)
 
 def random_points():
     N = 100
@@ -20,10 +20,15 @@ def random_points():
     points = [(lon, lat) for lon, lat in zip(list(lons), list(lats))]
     # doesn't hurt to make sure all the points you pick are visible
     points = [(lon, lat) for lon, lat in points if geometry.visible(lon, lat)]
-    print(points)
     if len(points) == 0:
         raise ValueError("no points visible")
-    return points
+
+    # points must be a 2d array
+    points_arr = np.empty(len(points), dtype=tuple)
+    for idx, _ in np.ndenumerate(points_arr):
+        points_arr[idx] = points[idx[0]]
+    points_arr = np.array([points_arr])
+    return points_arr
 
 def optimize():
     # pick a time
@@ -36,7 +41,13 @@ def optimize():
     big_clear_poly = clear_poly(dtime)
 
     # calculate cost
-    cost_value = cost(points, big_clear_poly)
+    try:
+        cost_value = cost(points, big_clear_poly)
+    except Exception as e:
+        print("Looks like this crashed, sorry...",
+              "If you're feeling ambitious, look inside geometry.py",
+              "and let me know if you figure out why that happened!",
+              "But for now, just try running a different set of points!")
 
     # do something to the points...
     # optimize somehow...
