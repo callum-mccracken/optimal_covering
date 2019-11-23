@@ -586,10 +586,17 @@ def fov_coverage(population, clear_poly):
         for j, fov in enumerate(member):
             # note that fov is a Polygon instance.
 
+            # check if fov's associated coordinate is not visible
+            fov_lon, fov_lat = population[i][j]
+            if not visible(fov_lon, fov_lat):
+                # super-negative, to discourage invisible points
+                areas[i, j] = -1e100
+                continue
+
             # other FoVs in the member
             member_without_poly = [p for p in member if p is not fov]
 
-            # join all other member polys together
+            # sometimes this crashes, I wish I knew why
             m_union = ops.cascaded_union(member_without_poly)
 
             # sometimes this stuff crashes for no real great reason
