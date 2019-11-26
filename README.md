@@ -1,4 +1,4 @@
-[See the Detailed Docs](http://htmlpreview.github.io/?https://github.com/callum-mccracken/optimal_covering/blob/master/docs/build/html/index.html)
+[See the Detailed Docs](https://callum-mccracken.github.io/optimal_covering/build/html/)
 
 # What Is optimal_covering?
 
