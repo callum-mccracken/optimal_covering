@@ -69,14 +69,14 @@ lonlat = ortho.as_geodetic()
 
 
 # directory for cloud_mask, land_mask, and light_mask files
-earth_dir = realpath(join(dirname(__file__), "..", "earth_data"))
+earth_dir = realpath(join(dirname(__file__), "earth_data"))
 
 # directory for MERRA files
 merra_dir = join(earth_dir, 'MERRA')
 
 
 # path to save images
-png_dir = realpath(join(dirname(__file__), "..", 'images_and_output'))
+png_dir = realpath(join(dirname(__file__), "images_and_output"))
 
 # ensure they all exist
 for d in [earth_dir, merra_dir, png_dir]:
