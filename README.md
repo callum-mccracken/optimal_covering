@@ -1,3 +1,5 @@
+[See the Detailed Docs](https://github.com/callum-mccracken/optimal_covering/docs/build/index.html)
+
 # What Is optimal_covering?
 
 optimal_covering is an API to use to try to answer the following question:
