@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('../../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'optimal_covering'
+project = 'OptCov'
 copyright = '2019, Callum McCracken'
 author = 'Callum McCracken'
 
