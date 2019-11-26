@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>genetics &#8212; optimal_covering 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="geometry" href="geometry.html" />
+    <link rel="prev" title="earth_data" href="earth_data.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-optimal_covering.genetics">
+<span id="genetics"></span><h1>genetics<a class="headerlink" href="#module-optimal_covering.genetics" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="optimal_covering.genetics.calc_fitness">
+<code class="sig-prename descclassname">optimal_covering.genetics.</code><code class="sig-name descname">calc_fitness</code><span class="sig-paren">(</span><em class="sig-param">population</em>, <em class="sig-param">big_clear_poly</em>, <em class="sig-param">fitness_type='coverage'</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.genetics.calc_fitness" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns a 2D array containing the fitness
+of each fov of each member of the population. 
+That is, the total unique clear area covered by each observation point.</p>
+<ul class="simple">
+<li><p>population is a 2d array of (lon, lat) tuples.</p></li>
+<li><p>big_clear_poly is the union of all clear spots on the earth</p></li>
+<li><p>fitness_type is a string: which type of fitness calculation to do</p></li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.genetics.do_genetics">
+<code class="sig-prename descclassname">optimal_covering.genetics.</code><code class="sig-name descname">do_genetics</code><span class="sig-paren">(</span><em class="sig-param">dtime</em>, <em class="sig-param">clear_polys</em>, <em class="sig-param">big_clear_poly</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.genetics.do_genetics" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the function which does the main process in the genetic algorithm</p>
+<ul class="simple">
+<li><p>generate initial population</p></li>
+<li><p>evolve using genetic algorithm (parents &gt;&gt; offspring &gt;&gt; mutations)</p></li>
+<li><p>repeat until you’re done a number of iterations</p></li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.genetics.mutation">
+<code class="sig-prename descclassname">optimal_covering.genetics.</code><code class="sig-name descname">mutation</code><span class="sig-paren">(</span><em class="sig-param">offspring</em>, <em class="sig-param">offspring_fitness</em>, <em class="sig-param">clear_polys</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.genetics.mutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mutation adds random changes to fovs of members of <cite>offspring</cite></p>
+<p>When calling this, you should have offspring fovs ordered best to worst!</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.genetics.offspring">
+<code class="sig-prename descclassname">optimal_covering.genetics.</code><code class="sig-name descname">offspring</code><span class="sig-paren">(</span><em class="sig-param">parents</em>, <em class="sig-param">parental_fitness</em>, <em class="sig-param">big_clear_poly</em>, <em class="sig-param">algorithm='best_combination'</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.genetics.offspring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get offspring given parents and their fitness.</p>
+<ul class="simple">
+<li><p>parents = 2d array of (lon, lat) tuples: subset of population</p></li>
+<li><p>parental_fitness = 2d array of floats: fitness of each parent’s points</p></li>
+<li><p>big_clear_poly = union of all clear areas on the Earth</p></li>
+<li><p>algorithm = string: method of offspring selection</p></li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.genetics.random_population">
+<code class="sig-prename descclassname">optimal_covering.genetics.</code><code class="sig-name descname">random_population</code><span class="sig-paren">(</span><em class="sig-param">clear_polys</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.genetics.random_population" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will generate random visible fovs, tuples of the form (lon, lat).</p>
+<p>clear_polys is a list of Polygons which define the clear area on the Earth.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.genetics.select_parents">
+<code class="sig-prename descclassname">optimal_covering.genetics.</code><code class="sig-name descname">select_parents</code><span class="sig-paren">(</span><em class="sig-param">population</em>, <em class="sig-param">member_fitness</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.genetics.select_parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select the best members in the current population as parents
+for producing the offspring of the next generation.</p>
+<p>population = list of lists of (lon, lat) tuples: observation points</p>
+<p>member_fitness = list of floats: fitness of each member of population</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">optimal_covering</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth_data.html">earth_data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">genetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_funcs.html">plot_funcs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampling.html">sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timer.html">timer</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="earth_data.html" title="previous chapter">earth_data</a></li>
+      <li>Next: <a href="geometry.html" title="next chapter">geometry</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Callum McCracken.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/genetics.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

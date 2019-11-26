@@ -9,7 +9,7 @@ import cartopy.crs as ccrs
 from os.path import realpath, join, dirname, exists
 from os import mkdir
 
-"""SATELLITE PARAMETERS"""
+# SATELLITE PARAMETERS
 
 sat_lat = 90  # latitude of satellite, in degrees
 sat_lon = -90  # longitude of satellite, in degrees
@@ -36,7 +36,7 @@ angle_increments = [(-x_increment/2, -y_increment/2),
                     (-x_increment/2, y_increment/2),
                     (-x_increment/2, -y_increment/2)]
 
-"""CLOUD PARAMETERS"""
+# CLOUD PARAMETERS
 
 # if MERRA data has cloud fraction greater than this, we say it's cloudy
 cloud_thresh = 0.1
@@ -46,7 +46,7 @@ cloud_thresh = 0.1
 lon_res = 0.625
 lat_res = 0.5
 
-"""EARTH PARAMETERS"""
+# EARTH PARAMETERS
 
 # radius of Earth, using WGS84 value
 re_km = 6378.137
@@ -65,7 +65,7 @@ ortho = ccrs.Orthographic(
     central_latitude=sat_lat)
 lonlat = ortho.as_geodetic()
 
-"""PATHS"""
+# PATHS
 
 
 # directory for cloud_mask, land_mask, and light_mask files

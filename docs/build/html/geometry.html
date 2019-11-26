@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>geometry &#8212; optimal_covering 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="optimization" href="optimization.html" />
+    <link rel="prev" title="genetics" href="genetics.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-optimal_covering.geometry">
+<span id="geometry"></span><h1>geometry<a class="headerlink" href="#module-optimal_covering.geometry" title="Permalink to this headline">¶</a></h1>
+<p>Module for containing all purely geometric functions.</p>
+<ul class="simple">
+<li><p>conversions to and from different coordinate systems</p></li>
+<li><p>perform various geometrical operations on shapely geometries</p></li>
+<li><p>functions to calculate certain satellite-geometry-related things</p></li>
+<li><p>other operations involving polygons and coordinates</p></li>
+</ul>
+<div class="section" id="things-to-remember">
+<h2>Things to Remember<a class="headerlink" href="#things-to-remember" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>longitude: -180 to 180</p></li>
+<li><p>latitude: -90 to 90</p></li>
+<li><p>λ: longitude in radians / “azimuthal angle”</p></li>
+<li><p>φ: latitude in radians / “polar angle”</p></li>
+<li><p>h = height of some object from Earth’s center</p></li>
+<li><p>Throughout this module we treat the Earth as spherical</p></li>
+</ul>
+<p>How to generate a shapely Polygon:</p>
+<p>pgon = Polygon(((xll, yll), (xll, yur), (xur, yur), (xur, yll), (xll, yll)))</p>
+<p>(ll = lower left, ul = upper left, lr = lower right, ur = upper right)</p>
+<dl class="function">
+<dt id="optimal_covering.geometry.add_lat">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">add_lat</code><span class="sig-paren">(</span><em class="sig-param">lat1</em>, <em class="sig-param">lat2</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.add_lat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds latitudes, while keeping the result within bounds.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.add_lon">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">add_lon</code><span class="sig-paren">(</span><em class="sig-param">lon1</em>, <em class="sig-param">lon2</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.add_lon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds longitudes, while keeping the result within bounds.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.angle_from_arc_length">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">angle_from_arc_length</code><span class="sig-paren">(</span><em class="sig-param">arc_length</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.angle_from_arc_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the size of the angle we’ll have to point the satellite,
+away from “straight down”, in order to see a point a distance arc_length
+away on the surface of the Earth.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.arc_length">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">arc_length</code><span class="sig-paren">(</span><em class="sig-param">lon1</em>, <em class="sig-param">lat1</em>, <em class="sig-param">lon2=-90</em>, <em class="sig-param">lat2=90</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.arc_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates how far away (along Earth’s surface) a point is,
+from the sub-satellite point by default, or from some other point,
+if you specify lon2, lat2. The result is always positive.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.arc_length_from_angle">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">arc_length_from_angle</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.arc_length_from_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distance along the Earth that one would have to run, in order
+to get to a point that is an angular distance “angle”
+away from the sub-satellite point.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.equal">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">equal</code><span class="sig-paren">(</span><em class="sig-param">thing1</em>, <em class="sig-param">thing2</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if thing1 and thing2 are equal up to numerical accuracy.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.fov_coverage">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">fov_coverage</code><span class="sig-paren">(</span><em class="sig-param">population</em>, <em class="sig-param">clear_poly</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.fov_coverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates coverage for a population. That is, the total unique area
+covered by each fov of each member of the population.</p>
+<p>The population is just a set of sets of (lon, lat) points.</p>
+<p>clear_poly is a shape (e.g. Polygon) that contains the clear area on Earth.</p>
+<dl class="simple">
+<dt>population = array(</dt><dd><p>[[(lat00, lon00), (lat01, lon01), (lat02, lon02), (lat03, lon03)],
+[(lat10, lon10), (lat11, lon11), (lat12, lon12), (lat13, lon13)],
+[(lat20, lon20), (lat21, lon21), (lat22, lon22), (lat23, lon23)]])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.lats_equal">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">lats_equal</code><span class="sig-paren">(</span><em class="sig-param">lat1</em>, <em class="sig-param">lat2</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.lats_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if longutudes are equal up to numerical accuracy.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.lon_lat_alt_to_xyz">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">lon_lat_alt_to_xyz</code><span class="sig-paren">(</span><em class="sig-param">lon</em>, <em class="sig-param">lat</em>, <em class="sig-param">alt</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.lon_lat_alt_to_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return cartesian coordinates given lon, lat (and possibly alt in km)</p>
+<p>We assume the Earth is spherical. xyz units are km.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.lon_lat_to_ortho_x_y">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">lon_lat_to_ortho_x_y</code><span class="sig-paren">(</span><em class="sig-param">lon</em>, <em class="sig-param">lat</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.lon_lat_to_ortho_x_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an orthographic projection.
+Works for both floating point values and for numpy arrays.</p>
+<ul class="simple">
+<li><p>lat: latitude(s) of the point(s)</p></li>
+<li><p>lon: longitude(s) of the point(s)</p></li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.lons_equal">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">lons_equal</code><span class="sig-paren">(</span><em class="sig-param">lon1</em>, <em class="sig-param">lon2</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.lons_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if longutudes are equal up to numerical accuracy.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.max_visible_angle">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">max_visible_angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.max_visible_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the max angle that the satellite can point
+before going off the edge of the Earth.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.obs_poly">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">obs_poly</code><span class="sig-paren">(</span><em class="sig-param">lon</em>, <em class="sig-param">lat</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.obs_poly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the (lon, lat) coordinates of a point we want to observe,
+returns a Polygon object representing the actual square we’d see,
+with vertices given in (lon, lat) coordinates.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.ortho_x_y_to_lon_lat">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">ortho_x_y_to_lon_lat</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.ortho_x_y_to_lon_lat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an inverse orthographic projection, returns lon, lat.</p>
+<p>x, y coordinates are orthographic projection coordinates, in km</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.polygon_area">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">polygon_area</code><span class="sig-paren">(</span><em class="sig-param">poly</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.polygon_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the area of a polygon instance,
+which has vertices in lon, lat coordinates.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.visible">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">visible</code><span class="sig-paren">(</span><em class="sig-param">lon</em>, <em class="sig-param">lat</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if this point is visible from the satellite, else False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.geometry.xyz_to_lon_lat_alt">
+<code class="sig-prename descclassname">optimal_covering.geometry.</code><code class="sig-name descname">xyz_to_lon_lat_alt</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.geometry.xyz_to_lon_lat_alt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return geodetic coordinates (lon, lat) corresponding to
+the Cartesian (geocentric) Coordinates given by x, y, z.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">optimal_covering</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth_data.html">earth_data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genetics.html">genetics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_funcs.html">plot_funcs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampling.html">sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timer.html">timer</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="genetics.html" title="previous chapter">genetics</a></li>
+      <li>Next: <a href="optimization.html" title="next chapter">optimization</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Callum McCracken.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/geometry.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -2,7 +2,6 @@ import numpy as np
 from shapely.geometry import Point
 import itertools
 
-from timer import timeit
 import geometry
 import sampling
 import plot_funcs
@@ -18,10 +17,9 @@ pop_size = (num_members, num_fovs)
 
 def random_population(clear_polys):
     """
-    this will generate random fovs, tuples of the form (lon, lat)
-    (but not super random, they should at least be clear spots!)
+    This will generate random visible fovs, tuples of the form (lon, lat).
 
-    clear_polys is a list of Polygons which define the clear area
+    clear_polys is a list of Polygons which define the clear area on the Earth.
     """
     # we'll return this at the end
     fovs = np.empty(pop_size, dtype=tuple)
@@ -45,21 +43,15 @@ def random_population(clear_polys):
     return fovs
 
 
-@timeit
 def calc_fitness(population, big_clear_poly, fitness_type="coverage"):
     """
-    General fitness function to be maximized.
-
-    This function returns an array containing the fitness of each member
-    of the population.
-
+    This function returns a 2D array containing the fitness
+    of each fov of each member of the population. 
+    That is, the total unique clear area covered by each observation point.
+    
     - population is a 2d array of (lon, lat) tuples.
-
     - big_clear_poly is the union of all clear spots on the earth
-
-    - fitness_type is a string --> which type of fitness calculation to do
-
-    - feel free to add your own elif cases if you want extra fitness types
+    - fitness_type is a string: which type of fitness calculation to do
     """
     if fitness_type == "coverage":
         fov_fitness = geometry.fov_coverage(population, big_clear_poly)
@@ -72,12 +64,13 @@ def calc_fitness(population, big_clear_poly, fitness_type="coverage"):
 
 
 def select_parents(population, member_fitness):
-    """Select the best individuals in the current generation as parents
+    """
+    Select the best members in the current population as parents
     for producing the offspring of the next generation.
-    
-    population = list of lists of (lon, lat) tuples
 
-    member_fitness = list of floats, fitnesses of each member of population
+    population = list of lists of (lon, lat) tuples: observation points
+
+    member_fitness = list of floats: fitness of each member of population
     """
     # reorder the population in terms of fitness, largest to smallest
     fitness_order = list(reversed(member_fitness.argsort()))
@@ -87,17 +80,15 @@ def select_parents(population, member_fitness):
     return parents, parental_fitness
 
 
-@timeit
 def offspring(parents, parental_fitness, big_clear_poly,
               algorithm="best_combination"):
     """
-    Get offspring given parents and their fitness
+    Get offspring given parents and their fitness.
 
-    feel free to add other offpring algorithms, etc.
-
-    parents = slice of population, list of lists of (lon, lat) tuples
-
-    parental_fitness = 2d array of floats, fitness of each parent's points
+    - parents = 2d array of (lon, lat) tuples: subset of population
+    - parental_fitness = 2d array of floats: fitness of each parent's points
+    - big_clear_poly = union of all clear areas on the Earth
+    - algorithm = string: method of offspring selection
     """
     offspring_size = (num_members-num_parents, num_fovs)
     offspring_arr = np.empty(offspring_size, dtype=tuple)
@@ -144,11 +135,11 @@ def offspring(parents, parental_fitness, big_clear_poly,
     return offspring_arr
 
 
-@timeit
 def mutation(offspring, offspring_fitness, clear_polys):
     """
-    Mutation changes members in each offspring collection randomly.
-    Note that offspring fovs are already ordered from best to worst!
+    Mutation adds random changes to fovs of members of `offspring`
+
+    When calling this, you should have offspring fovs ordered best to worst!
     """
     for i, member in enumerate(offspring):
         # get clear points on Earth
@@ -195,8 +186,9 @@ def mutation(offspring, offspring_fitness, clear_polys):
 def do_genetics(dtime, clear_polys, big_clear_poly):
     """
     This is the function which does the main process in the genetic algorithm
+
     - generate initial population
-    - evolve
+    - evolve using genetic algorithm (parents >> offspring >> mutations)
     - repeat until you're done a number of iterations
     """
     # generate population

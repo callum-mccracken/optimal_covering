@@ -12,14 +12,13 @@ from timer import timeit
 
 def plot_clear(dtime, show=True):
     """
-    Plot an orthographic projection of clear area
+    Plot an orthographic projection of clear area.
 
-    dtime = datetime instance
-
-    show = boolean, whether or not to display a plot
+    - dtime = datetime instance
+    - show = boolean: whether or not to display a plot
 
     Either shows a plot and returns nothing, or returns the axis on which
-    the clear area is plotted, depending on the value of show
+    the clear area is plotted, depending on the value of "show".
     """
     print('plotting clear area')
 
@@ -48,12 +47,10 @@ def plot_points(points, title, dtime, show=True):
     """
     Plots a set of observation points.
 
-    points = [(lon, lat), (...), ...], a list of tuples with coordinates
-    title = string, we'll name the file title.png
-
-    dtime = datetime instance
-
-    show = boolean, do you want to display the plot or save it as a png?
+    - points = list of tuples: [(lon, lat), (...), ...]
+    - title = string: we'll name the plot title.png
+    - dtime = datetime instance
+    - show = boolean, do you want to display the plot or save it as a png?
     """
     # plot clear_polys first
     ax = plot_clear(dtime, show=False)
@@ -74,8 +71,10 @@ def plot_points(points, title, dtime, show=True):
 
 
 def plot_best_fitnesses(best_fitnesses):
-    """Makes a plot of the best fitnesses seen during each iteration
-    of the genetic algorithm. Currently just a basic matplotlib plot."""
+    """
+    Makes a plot of the best fitnesses seen during each iteration
+    of the genetic algorithm. Currently just a basic matplotlib plot.
+    """
     plt.plot(best_fitnesses)
     plt.xlabel("Iteration")
     plt.ylabel("Fitness")

@@ -11,7 +11,7 @@ def random_sample(iterable, k=1):
     The reason for using this rather than random.sample is that
     random.sample requires a sequence, not an iterable,
     so we'd have to store the iterable in a list or something which could get
-    enormous...
+    enormous.
     """
     result = [None] * k
     for i, item in enumerate(iterable):
@@ -29,7 +29,7 @@ def sampled(a, b, N):
     """
     Make N random combinations of len(a) values taken from a and b,
     (assuming len(a)=len(b)),
-    with a random number taken from each of a and b, without replacement
+    with a random number taken from each of a and b, without replacement.
 
     Note a and b may not have all unique elements from one another, but we
     will make sure the output has only unique elements.

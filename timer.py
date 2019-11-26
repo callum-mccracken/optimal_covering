@@ -2,20 +2,33 @@
 Contains a simple timer function, to be called as a decorator.
 
 Usage:
+------
 
-# import
-from timer import timeit
+- import
 
-# define function with timeit used as decorator
-@timeit
-def some_func(x):
-    ...
+::
 
-# call the function
-some_func(5)
+    from timer import timeit
 
-# prints function name and execution time
->>> "some_func"  12.09 ms
+- define function with timeit used as decorator
+
+::
+
+    @timeit
+    def some_func(x):
+        ...
+
+- call the function
+
+::
+
+    some_func(5)
+
+- prints function name and execution time
+
+::
+
+    >>> "some_func"  12.09 ms
 """
 from time import time
 

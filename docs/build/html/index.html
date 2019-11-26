@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>The OptCov Docs &#8212; optimal_covering 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="constants" href="constants.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="the-optcov-docs">
+<h1>The OptCov Docs<a class="headerlink" href="#the-optcov-docs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-optimal-covering">
+<h2>What Is optimal_covering?<a class="headerlink" href="#what-is-optimal-covering" title="Permalink to this headline">¶</a></h2>
+<p>optimal_covering is an API to use to try to answer the following question:</p>
+<p>We have a region on the Earth we want to observe, but only a finite number of observations to make. Where should we look?</p>
+<p>More generally, we have some shape we want to cover with a finite number of other, smaller shapes. Where should we place those smaller shapes?</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>First, run the <a class="reference external" href="https://hub.docker.com/r/callummccracken/optimal-covering">docker image</a></p>
+<p>Then clone the <a class="reference external" href="https://github.com/callum-mccracken/optimal_covering.git">github repository</a></p>
+<p>Then, run <code class="docutils literal notranslate"><span class="pre">tests.py</span></code>, to make sure everything worked!</p>
+</div>
+<div class="section" id="python-modules-you-should-care-about">
+<h2>Python Modules you Should Care About<a class="headerlink" href="#python-modules-you-should-care-about" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tests.py</span></code>: run this first, to test that everything’s working well</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">genetics.py</span></code>: performs genetic algorithm</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimization.py</span></code>: a sample module to be adapted for other machine learning techniques</p></li>
+<li><p>everything else can hopefully be ignored, but let me know if you find any bugs!</p></li>
+</ul>
+</div>
+<div class="section" id="important-notes">
+<h2>Important Notes<a class="headerlink" href="#important-notes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Always write geometric coordinates as (lon, lat)</p></li>
+<li><p>Recall that longitudes range from -180 to 180, latitudes from -90 to 90</p></li>
+</ul>
+<div class="section" id="all-modules">
+<h3>All Modules<a class="headerlink" href="#all-modules" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth_data.html">earth_data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genetics.html">genetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_funcs.html">plot_funcs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampling.html">sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timer.html">timer</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="to-edit-these-docs">
+<h3>To Edit these Docs<a class="headerlink" href="#to-edit-these-docs" title="Permalink to this headline">¶</a></h3>
+<p>These docs were created by sphinx, which pulls docstrings from Python modules.</p>
+<p>To generate new HTML files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span></code> into <code class="docutils literal notranslate"><span class="pre">docs</span></code> then run a sphinx command like <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code></p></li>
+</ul>
+<p>To add a new Python module:</p>
+<ul class="simple">
+<li><p>create the Python file, and make sure it has good ReST docstrings</p></li>
+<li><p>create  <code class="docutils literal notranslate"><span class="pre">docs/source/your_filename.rst</span></code>, just copy &amp; edit <code class="docutils literal notranslate"><span class="pre">geometry.rst</span></code></p></li>
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">docs/source/index.rst</span></code> so it includes your new file</p></li>
+<li><p>then generate new HTML files</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">optimal_covering</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth_data.html">earth_data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genetics.html">genetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_funcs.html">plot_funcs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampling.html">sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timer.html">timer</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="constants.html" title="next chapter">constants</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Callum McCracken.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

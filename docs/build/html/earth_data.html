@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>earth_data &#8212; optimal_covering 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="genetics" href="genetics.html" />
+    <link rel="prev" title="constants" href="constants.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-optimal_covering.earth_data">
+<span id="earth-data"></span><h1>earth_data<a class="headerlink" href="#module-optimal_covering.earth_data" title="Permalink to this headline">¶</a></h1>
+<p>Contains functions for dealing with Earth data,</p>
+<p>e.g. “is a spot cloudy?” or “is a spot illuminated now?”</p>
+<dl class="function">
+<dt id="optimal_covering.earth_data.clear_vertices">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">clear_vertices</code><span class="sig-paren">(</span><em class="sig-param">lon</em>, <em class="sig-param">lat</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.clear_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate vertices of a cloud point, i.e. a point in the MERRA grid,
+using its constant lon / lat resolution.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.earth_data.download_merra_data">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">download_merra_data</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">month</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.download_merra_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads MERRA data for the given year and month (integers).</p>
+<p>This function was created using these instructions:
+<a class="reference external" href="https://disc.gsfc.nasa.gov/data-access">https://disc.gsfc.nasa.gov/data-access</a></p>
+<p>Note that MERRA data is only published for up to about 2 months ago,
+but the record goes back pretty far, like 1980?</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.earth_data.get_clear">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">get_clear</code><span class="sig-paren">(</span><em class="sig-param">dtime</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.get_clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns clear_polys, big_clear_poly, where
+- clear_polys is a list of polygons which define the clear spots on Earth
+- big_clear_poly is the union of those, it may not technically be a polygon</p>
+<p>(dtime is a datetime instance)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.earth_data.get_cloud_mask">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">get_cloud_mask</code><span class="sig-paren">(</span><em class="sig-param">dtime</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.get_cloud_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a 2d array of cloudy / not cloudy values corresponding to
+the time specified by dtime (datetime instance).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.earth_data.get_clouds">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">get_clouds</code><span class="sig-paren">(</span><em class="sig-param">dtime</em>, <em class="sig-param">interp_time=None</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.get_clouds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return cloud fraction values from the MERRA files, at a given time.</p>
+<p>dtime and interp_time are datetime instances. Usually just use
+dtime, but if you want a time that’s not associated with a data point in
+the MERRA files, we can interpolate and get the data in between.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.earth_data.get_land_mask">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">get_land_mask</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.get_land_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a landmask for the entire world,
+i.e. a matrix with entries designating places as land or not land.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimal_covering.earth_data.is_light">
+<code class="sig-prename descclassname">optimal_covering.earth_data.</code><code class="sig-name descname">is_light</code><span class="sig-paren">(</span><em class="sig-param">lons</em>, <em class="sig-param">lats</em>, <em class="sig-param">dtime</em>, <em class="sig-param">night=None</em><span class="sig-paren">)</span><a class="headerlink" href="#optimal_covering.earth_data.is_light" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether or not arrays of longitudes and latitudes are dark.
+- lons = longitudes, array
+- lats = latitudes, array
+- dtime = datetime instance
+- night = Nightshade instance if you have one, otherwise one will be made</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">optimal_covering</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">earth_data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genetics.html">genetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimization.html">optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_funcs.html">plot_funcs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampling.html">sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timer.html">timer</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="constants.html" title="previous chapter">constants</a></li>
+      <li>Next: <a href="genetics.html" title="next chapter">genetics</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Callum McCracken.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/earth_data.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

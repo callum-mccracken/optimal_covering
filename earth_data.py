@@ -1,3 +1,9 @@
+"""
+Contains functions for dealing with Earth data,
+
+e.g. "is a spot cloudy?" or "is a spot illuminated now?"
+"""
+
 import os
 from os.path import join, exists, expanduser
 import datetime as dt
@@ -42,11 +48,11 @@ def get_land_mask():
 
 def get_clouds(dtime, interp_time=None):
     """
-    Return cloud values at a given time.
+    Return cloud fraction values from the MERRA files, at a given time.
 
-    args:
-        dtime - datetime: a time associated with cloud data
-        interp_time - datetime: a time to use to interpolate cloud data
+    dtime and interp_time are datetime instances. Usually just use
+    dtime, but if you want a time that's not associated with a data point in
+    the MERRA files, we can interpolate and get the data in between.
     """
     # get the filename for the date in question
     fname = c.cloud_path_format.format(
@@ -129,7 +135,10 @@ def get_clouds(dtime, interp_time=None):
 
 
 def clear_vertices(lon, lat):
-    """calculate vertices of a cloud point, using set lon / lat resolution"""
+    """
+    Calculate vertices of a cloud point, i.e. a point in the MERRA grid,
+    using its constant lon / lat resolution.
+    """
     lo_lon = g.add_lon(lon, -c.lon_res / 2)
     lo_lat = g.add_lat(lat, -c.lat_res / 2)
     hi_lon = g.add_lon(lon,  c.lon_res / 2)
@@ -142,7 +151,10 @@ def clear_vertices(lon, lat):
 
 
 def get_cloud_mask(dtime):
-    """returns a 2d array of cloud fraction values"""
+    """
+    Returns a 2d array of cloudy / not cloudy values corresponding to
+    the time specified by dtime (datetime instance).
+    """
     cloud_mask_path = dtime.strftime(c.cloud_mask_format)
     if not exists(cloud_mask_path):
         cloud_fraction = get_clouds(dtime)
@@ -154,7 +166,13 @@ def get_cloud_mask(dtime):
 
 
 def is_light(lons, lats, dtime, night=None):
-    """test if lists / arrays of lons, lats are dark"""
+    """
+    Tests whether or not arrays of longitudes and latitudes are dark.
+    - lons = longitudes, array
+    - lats = latitudes, array
+    - dtime = datetime instance
+    - night = Nightshade instance if you have one, otherwise one will be made
+    """
     if night is None:
         night = Nightshade(dtime)
     dark_poly = list(night.geometries())[0]
@@ -172,7 +190,10 @@ def is_light(lons, lats, dtime, night=None):
 
 @timeit
 def get_light_mask(dtime):
-    """get 2D array of points with 1 = light 0 = dark"""
+    """
+    Get 2D array associated with MERRA grid points, 1 = light 0 = dark,
+    at a given time (dtime = datetime instance)
+    """
     light_mask_file = dtime.strftime(c.light_mask_format)
     if not exists(light_mask_file):
         print("Creating light_mask, this might take 30 seconds")
@@ -187,6 +208,11 @@ def get_light_mask(dtime):
 
 @timeit
 def get_clear_polys(dtime):
+    """
+    Gets an array of shapely.geometry.Polygon objects, which correspond to
+    the patches of clear, observable land on the Earth at the given time
+    (dtime = datetime instance).
+    """
     # 1 for clear, 0 for cloudy
     cloud_mask = get_cloud_mask(dtime)
 
@@ -228,15 +254,13 @@ def get_clear_polys(dtime):
 
 def download_merra_data(year, month):
     '''
-    Notes:
-    This function was created using these instructions from NASA:
-    https://disc.gsfc.nasa.gov/data-access# note that
-    MERRA data is only published for up to about 2 months ago/
+    Downloads MERRA data for the given year and month (integers).
 
-    Inputs:
-    year (string): the year you want to download
-    month (string): the month you want to download
-    No outputs, just saves the MERRA data to wherever you tell it to go.
+    This function was created using these instructions:
+    https://disc.gsfc.nasa.gov/data-access
+
+    Note that MERRA data is only published for up to about 2 months ago,
+    but the record goes back pretty far, like 1980?
     '''
     # save cwd so we can get back here at the end
     cwd = os.getcwd()
@@ -306,13 +330,12 @@ def download_merra_data(year, month):
 
 
 def get_clear(dtime):
-    """really gets (clear_polys, big_clear_poly)
+    """
+    Returns clear_polys, big_clear_poly, where
+    - clear_polys is a list of polygons which define the clear spots on Earth
+    - big_clear_poly is the union of those, it may not technically be a polygon
 
-    clear_polys is a list of polygons which define where the clear area is
-
-    big_clear_poly is the union of those
-
-    dtime = datetime instance
+    (dtime is a datetime instance)
     """
     clear_polys = get_clear_polys(dtime)
     big_clear_poly = cascaded_union(clear_polys)

@@ -8,5 +8,6 @@ dependencies:
   - matplotlib
   - fiona
   - nb_conda
+  - sphinx
 prefix: /Users/callum/opt/anaconda3/envs/optcov
 

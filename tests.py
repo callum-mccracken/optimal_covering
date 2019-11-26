@@ -1,4 +1,8 @@
-"""contains functions for testing each function in each module"""
+"""
+Contains functions for testing each function in each module.
+At least most functions anyway.
+"""
+
 def test_earth():
     print("working on: test_earth")
     import earth_data
@@ -32,8 +36,6 @@ def test_utils():
     # do all the geometry tests
     import geometry
     geometry.test_add_lon_lat()
-    geometry.test_perpendicular_vector()
-    geometry.test_set_magnitude()
     geometry.test_ortho_conversion()
     geometry.test_arcs_angles()
     geometry.test_xyz_conversion()

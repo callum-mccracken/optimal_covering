@@ -1,11 +1,27 @@
 """
 Module for containing all purely geometric functions.
 
-- conversions to and from orthographic projection coordinates / lon, lat
-- get angles from arc lengths and lengths from angles
-- check that polygons were formed correctly
-- remove intersections of polygons from polygons
-- other operations involving polygons and coordinates, ...
+- conversions to and from different coordinate systems
+- perform various geometrical operations on shapely geometries
+- functions to calculate certain satellite-geometry-related things
+- other operations involving polygons and coordinates
+
+Things to Remember
+-------------------
+
+- longitude: -180 to 180
+- latitude: -90 to 90
+- λ: longitude in radians / "azimuthal angle"
+- φ: latitude in radians / "polar angle"
+- h = height of some object from Earth's center
+- Throughout this module we treat the Earth as spherical
+
+How to generate a shapely Polygon:
+
+pgon = Polygon(((xll, yll), (xll, yur), (xur, yur), (xur, yll), (xll, yll)))
+
+(ll = lower left, ul = upper left, lr = lower right, ur = upper right)
+
 """
 import numpy as np
 from numpy import cos, sin, arccos, arcsin, arctan2, \
@@ -20,37 +36,11 @@ import constants as c
 # we'll have some rounding error to deal with at certain points
 accuracy = 1e-8
 
-
-"""
-Important things to note:
-
-    longitude: -180 to 180
-    latitude: -90 to 90
-
-
-    To generate a Polygon:
-    pgon = Polygon((
-            (xll, yll),
-            (xll, yur),
-            (xur, yur),
-            (xur, yll),
-            (xll, yll)
-        ))
-    (where ll = lower left, ul = upper left,
-     lr = lower right, ur = upper right)
-
-    Throughout this module we treat the Earth as spherical.
-
-    There are some variables we'll use a decent amount listed below:
-
-    λ: longitude in radians / "azimuthal angle"
-    φ: latitude in radians / "polar angle"
-    h = height of some object from Earth's center
-"""
-
-
 # functions to deal with the weirdness of lon, lats coordinates
 def add_lon(lon1, lon2):
+    """
+    Adds longitudes, while keeping the result within bounds.
+    """
     sum_of_lons = lon1 + lon2
     # but it might be out of bounds!
     while sum_of_lons > 180:
@@ -61,6 +51,9 @@ def add_lon(lon1, lon2):
 
 
 def add_lat(lat1, lat2):
+    """
+    Adds latitudes, while keeping the result within bounds.
+    """
     sum_of_lats = lat1 + lat2
     # but it might be out of bounds!
     while sum_of_lats > 180:
@@ -71,17 +64,25 @@ def add_lat(lat1, lat2):
 
 
 def lons_equal(lon1, lon2):
+    """
+    Checks if longutudes are equal up to numerical accuracy.
+    """
     diff = abs(add_lon(lon1, -1*lon2))
     return diff < accuracy
 
 
 def lats_equal(lat1, lat2):
+    """
+    Checks if longutudes are equal up to numerical accuracy.
+    """
     diff = abs(add_lat(lat1, -1*lat2))
     return diff < accuracy
 
 
 def equal(thing1, thing2):
-    """up to numerical accuracy"""
+    """
+    Test if thing1 and thing2 are equal up to numerical accuracy.
+    """
     diff = abs(thing1 - thing2)
     return diff < accuracy
 
@@ -92,66 +93,13 @@ def test_add_lon_lat():
     pass
 
 
-def perpendicular_vector(v):
-    """arbitrary perpendicular vector to v (v has 3 components)"""
-    if v[1] == 0 and v[2] == 0:
-        if v[0] == 0:
-            raise ValueError('zero vector')
-        else:
-            return np.cross(v, [0, 1, 0])
-    return np.cross(v, [1, 0, 0])
-
-
-def test_perpendicular_vector():
-    v = [np.random.rand(), np.random.rand(), np.random.rand()]
-    while v == [0, 0, 0]:
-        v = [np.random.rand(), np.random.rand(), np.random.rand()]
-    perp = perpendicular_vector(v)
-    should_be_zero = np.dot(perp, v)
-    if should_be_zero != 0:
-        print(v)
-        print(perp)
-        print(should_be_zero)
-        raise ValueError("perpendicular vector isn't perpendicular!")
-    print("passed test_perpendicular_vector")
-
-
-def set_magnitude(v, mag):
-    """adjust the magnitude of a vector, setting it to mag"""
-    v_mag = np.linalg.norm(v)
-    return v / v_mag * mag
-
-
-def test_set_magnitude():
-    # generate non-zero vector randomly
-    v = [np.random.rand(), np.random.rand(), np.random.rand()]
-    while v == [0, 0, 0]:
-        v = [np.random.rand(), np.random.rand(), np.random.rand()]
-    # pick a random magnitude
-    mag = np.random.randint(10)
-    # set the vector to have that magnitude
-    new_v = set_magnitude(v, mag)
-    # then check that it worked, up to rounding error
-    mag_diff = abs(np.linalg.norm(new_v) - mag)
-    if mag_diff > 1e-8:
-        print(v)
-        print(mag)
-        print(new_v)
-        print(np.linalg.norm(new_v))
-        raise ValueError("magnitude setting has failed!")
-    print("passed test_set_magnitude")
-
-
 def lon_lat_to_ortho_x_y(lon, lat):
     """
     Performs an orthographic projection.
-    works for both floating point values and for numpy arrays.
+    Works for both floating point values and for numpy arrays.
 
-    x, y coordinates are orthographic projectdtimecoordinates.
-
-    args:
-        lat - latitude(s) of the point(s)
-        lon - longitude(s) of the point(s)
+    - lat: latitude(s) of the point(s)
+    - lon: longitude(s) of the point(s)
     """
     # phi, lambda = spherical cordinate angles, in radians
     λ_s = radians(c.sat_lon)
@@ -170,13 +118,9 @@ def lon_lat_to_ortho_x_y(lon, lat):
 
 def ortho_x_y_to_lon_lat(x, y):
     """
-    Performs an inverse orthographic projection.
+    Performs an inverse orthographic projection, returns lon, lat.
 
     x, y coordinates are orthographic projection coordinates, in km
-
-    args:
-        x - orthographic x-coordinate(s) of the point(s)
-        y - orthographic y-coordinate(s) of the point(s)
     """
     if x == 0 and y == 0:  # special case where we don't have a unique value
         return c.sat_lon, c.sat_lat
@@ -214,7 +158,8 @@ def test_ortho_conversion():
 
 
 def lon_lat_alt_to_xyz(lon, lat, alt):
-    """Return cartesian coordinates given lon, lat (and possibly alt in km)
+    """
+    Return cartesian coordinates given lon, lat (and possibly alt in km)
 
     We assume the Earth is spherical. xyz units are km.
     """
@@ -236,7 +181,8 @@ def lon_lat_alt_to_xyz(lon, lat, alt):
 
 
 def xyz_to_lon_lat_alt(x, y, z):
-    """Return geodetic coordinates (lon, lat) corresponding to
+    """
+    Return geodetic coordinates (lon, lat) corresponding to
     the Cartesian (geocentric) Coordinates given by x, y, z.
     """
 
@@ -277,7 +223,9 @@ def test_xyz_conversion():
 
 
 def visible(lon, lat):
-    """returns True if this point is visible from the satellite, else False"""
+    """
+    Returns True if this point is visible from the satellite, else False
+    """
     # rewrite the coordinates as differences from the sub-satellite point
 
     # center of earth, we don't actually need it for anything but FYI
@@ -308,7 +256,6 @@ def visible(lon, lat):
 def test_visible():
     # the antipode is the point on the opposite side of the Earth. Let's
     # find the antipode of the satellite, which should 100% not be visible
-
     anti_lon = add_lon(c.sat_lon, 180)
     anti_lat = add_lat(c.sat_lat, 90)
     if visible(anti_lon, anti_lat):
@@ -322,7 +269,7 @@ def test_visible():
 def max_visible_angle():
     """
     Finds the max angle that the satellite can point
-    before going off the edge of the Earth
+    before going off the edge of the Earth.
     """
     r = c.re_km + c.sat_alt  # distance to satellite from center of Earth
 
@@ -333,9 +280,11 @@ def max_visible_angle():
 
 
 def angle_from_arc_length(arc_length):
-    """angle is size of the angle we'll have to point the satellite,
-    away from "straight down", to see a point a distance arc_length away
-    on the surface of the Earth."""
+    """
+    Returns the size of the angle we'll have to point the satellite,
+    away from "straight down", in order to see a point a distance arc_length
+    away on the surface of the Earth.
+    """
     # distance to satellite from center of Earth
     # note sat_alt must also be in km.
     r = c.sat_alt + c.re_km
@@ -356,6 +305,11 @@ def angle_from_arc_length(arc_length):
 
 
 def arc_length_from_angle(angle):
+    """
+    Returns the distance along the Earth that one would have to run, in order
+    to get to a point that is an angular distance "angle"
+    away from the sub-satellite point.
+    """
     # angle = the angle away from straight down, where the satellite's pointing
     # the question here is "how far away along the earth's surface is that?"
     theta = angle
@@ -385,9 +339,10 @@ max_arc = arc_length_from_angle(max_ang)  # in km
 max_ortho = c.re_km
 
 def arc_length(lon1, lat1, lon2=c.sat_lon, lat2=c.sat_lat):
-    """calculates how far away (along Earth's surface) a point is,
-    from the sub-satellite point by default, or from some other point
-    (the result is always positive).
+    """
+    Calculates how far away (along Earth's surface) a point is,
+    from the sub-satellite point by default, or from some other point,
+    if you specify lon2, lat2. The result is always positive.
     """
 
     # coordinates of point 1 and 2.
@@ -453,9 +408,13 @@ def test_ortho_angles():
 
 
 def polygon_area(poly):
-    """Thanks to StackExchange for this one
-    https://stackoverflow.com/questions/4681737/how-to-calculate-the-area-of-a-polygon-on-the-earths-surface-using-python
     """
+    Calculates the area of a polygon instance,
+    which has vertices in lon, lat coordinates.
+    """
+    # Thanks to StackExchange for this one.
+    # https://stackoverflow.com/questions/4681737/how-to-calculate-the-area-of-a-polygon-on-the-earths-surface-using-python
+
     def sin_proj(lon, lat):
         """
         Returns the x & y coordinates in km using a sinusoidal projection
@@ -468,7 +427,8 @@ def polygon_area(poly):
         return x, y
 
     def area(x, y):
-        """Calculates the area of an arbitrary polygon given its verticies
+        """
+        Calculates the area of an arbitrary polygon given its verticies
         in sinusoidal coordinates (in km), result is in km^2
         """
         area = 0.0
@@ -509,12 +469,8 @@ def test_polygon_area():
 def obs_poly(lon, lat):
     """
     Given the (lon, lat) coordinates of a point we want to observe,
-    get the (lon, lat) coordinates of the vertices of the polygon we'd see,
-    then return a Polygon object with those vertices.
-
-    lon, lat = coordinates of center of polygon
-
-    returns: Polygon object, with (mostly) realistic vertices
+    returns a Polygon object representing the actual square we'd see,
+    with vertices given in (lon, lat) coordinates.
     """
     # _c means "of center"
     x_c, y_c = lon_lat_to_ortho_x_y(lon, lat)
@@ -556,23 +512,17 @@ def test_obs_poly():
 
 def fov_coverage(population, clear_poly):
     """
-    calculates coverage for a population.
-
-    That is, the total unique area covered by
-    each fov of each member of the population.
+    Calculates coverage for a population. That is, the total unique area
+    covered by each fov of each member of the population.
 
     The population is just a set of sets of (lon, lat) points.
 
-    clear_poly is a shape that contains all the clear area,
-    maybe a Polygon but more likely a MultiPolygon or GeometryCollection
+    clear_poly is a shape (e.g. Polygon) that contains the clear area on Earth.
 
-    e.g. a population with 3 members, each with 4 fovs, might look like:
-
-    population = array([
-        [(lat00, lon00), (lat01, lon01), (lat02, lon02), (lat03, lon03)],
+    population = array(
+        [[(lat00, lon00), (lat01, lon01), (lat02, lon02), (lat03, lon03)],
         [(lat10, lon10), (lat11, lon11), (lat12, lon12), (lat13, lon13)],
-        [(lat20, lon20), (lat21, lon21), (lat22, lon22), (lat23, lon23)],
-    ])
+        [(lat20, lon20), (lat21, lon21), (lat22, lon22), (lat23, lon23)]])
     """
     # poly_pop = population made of polygons,
     # array containing polygons rather than tuples of coordinates

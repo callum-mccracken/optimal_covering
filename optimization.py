@@ -1,4 +1,6 @@
-"""a module tobe used as a template when making new optimization methods"""
+"""
+A module to be used as a template when trying new optimization methods.
+"""
 from datetime import datetime
 import numpy as np
 
@@ -6,14 +8,24 @@ import earth_data
 import geometry
 
 def clear_poly(dtime):
+    """
+    Get a Polygon which represents all clear area on Earth.
+    """
     clear_polys, big_clear_poly = earth_data.get_clear(dtime)
     return big_clear_poly
 
 
 def cost(points, big_clear_poly):
+    """
+    Calculate the cost of a set of points,
+    at a time where the clear area on Earth is represented by big_clear_poly
+    """
     return geometry.fov_coverage(points, big_clear_poly)
 
 def random_points():
+    """
+    Make some random set of points.
+    """
     N = 100
     lons = 360 * np.random.rand(N) - 180
     lats = 180 * np.random.rand(N) - 90
@@ -31,6 +43,9 @@ def random_points():
     return points_arr
 
 def optimize():
+    """
+    Perform some optimization operation.
+    """
     # pick a time
     dtime = datetime(2015, 5, 1)
 
@@ -57,7 +72,3 @@ def optimize():
 
 if __name__ == "__main__":
     optimize()
-
-
-
-
