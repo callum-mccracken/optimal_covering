@@ -130,8 +130,13 @@ def ortho_x_y_to_lon_lat(x, y):
     # do inverse orthographic projection, see wiki for details
     # https://en.wikipedia.org/wiki/Orthographic_projection_in_cartography
     ρ = sqrt(x ** 2 + y ** 2)  # that's a rho, not a p!
-    C = arcsin(ρ / c.re_km)  # use capital C, little c is constants module!
-
+    try:
+        C = arcsin(ρ / c.re_km)  # use capital C, little c is constants module!
+    except FloatingPointError as e:
+        print("error in geometry module when converting to lon, lat coords!")
+        print(e)
+        print("ignoring... please forgive me")
+        C = np.pi / 2  # I'm not really sure where this error comes from, tbh
     φ = arcsin(cos(C) * sin(φ_s) + y*sin(C) * cos(φ_s) / ρ)
     Δλ = arctan2(x * sin(C), ρ * cos(φ_s) * cos(C) - y * sin(φ_s) * sin(C))
 
@@ -330,7 +335,7 @@ def arc_length_from_angle(angle):
     return arc_length
 
 
-# max angle the satellite can point before seeing space
+# max angle the satellite can point (from straight down) before seeing space
 max_ang = max_visible_angle()  # in radians
 # max distance traveled on Earth before going off the planet
 max_arc = arc_length_from_angle(max_ang)  # in km
@@ -344,7 +349,8 @@ def arc_length(lon1, lat1, lon2=c.sat_lon, lat2=c.sat_lat):
     from the sub-satellite point by default, or from some other point,
     if you specify lon2, lat2. The result is always positive.
     """
-
+    if lon1 == lon2 and lat1 == lat2:
+        return 0
     # coordinates of point 1 and 2.
     # point 1 is given. By default point 2 is the satellite.
     λ_1 = radians(lon1)
@@ -486,15 +492,17 @@ def obs_poly(lon, lat):
         vert_x_ang = x_angle + x_inc
         vert_y_ang = y_angle + y_inc
 
-        # ensure we don't end up with a polygon with vertices in space!
-        # in real life that might be okay, but here it messes up calculations.
-        if vert_x_ang > max_ang:
-            vert_x_ang = max_ang
-        if vert_y_ang > max_ang:
-            vert_y_ang = max_ang
-
         # now convert back to lon, lat
+        # Also, ensure we don't end up with a polygon with vertices in space!
+        # in real life that might be okay, but here it messes up calculations.
         vert_x, vert_y = angle_x_y_to_ortho_x_y(vert_x_ang, vert_y_ang)
+        r = np.sqrt(vert_x ** 2 + vert_y ** 2)
+        
+        if r > c.re_km:
+            # shrink the point toward the center of the Earth
+            factor = c.re_km / r * 0.99  # 0.99 to leave some wiggle room
+            vert_x *= factor
+            vert_y *= factor
         vert_lon, vert_lat = ortho_x_y_to_lon_lat(vert_x, vert_y)
         vertices.append((vert_lon, vert_lat))
     return Polygon(vertices)
@@ -547,7 +555,12 @@ def fov_coverage(population, clear_poly):
             member_without_poly = [p for p in member if p is not fov]
 
             # sometimes this crashes, I wish I knew why
-            m_union = ops.cascaded_union(member_without_poly)
+            try:
+                m_union = ops.cascaded_union(member_without_poly)
+            except ValueError as e:
+                areas[i, j] = 0
+                print(e)
+                continue
 
             # sometimes this stuff crashes for no real great reason
             try:

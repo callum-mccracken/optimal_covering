@@ -207,7 +207,7 @@ def get_light_mask(dtime):
 
 
 @timeit
-def get_clear_polys(dtime):
+def get_clear_polys(dtime, just_coords=False):
     """
     Gets an array of shapely.geometry.Polygon objects, which correspond to
     the patches of clear, observable land on the Earth at the given time
@@ -238,6 +238,9 @@ def get_clear_polys(dtime):
     ones = np.where(useful_mask == 1)
     useful_coords = lonlat_coords[ones]
     polygons = []
+
+    if just_coords:
+        return useful_coords
 
     for lon, lat in useful_coords:
         # these polys are nice to deal with since they're arranged in a grid
