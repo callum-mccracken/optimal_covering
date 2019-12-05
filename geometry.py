@@ -592,12 +592,11 @@ def fov_coverage(population, clear_poly):
     return areas # / ideal_area
 
 
-def test_fov_coverage():
+def test_fov_coverage(dtime):
     import earth_data
     from datetime import datetime
     import genetics
     # get some test day's cloud data
-    dtime = datetime(2015, 5, 1)
     clear_polys, clear_poly = earth_data.get_clear(dtime)
     # get some random population
     population = genetics.random_population(clear_polys)

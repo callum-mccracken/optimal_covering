@@ -2,12 +2,12 @@
 Contains functions for testing each function in each module.
 At least most functions anyway.
 """
+from datetime import datetime
+test_time = datetime(2015, 5, 1)
 
 def test_earth():
     print("working on: test_earth")
     import earth_data
-    from datetime import datetime
-    dtime = datetime(2015, 5, 1)
     # check that land data works -- we should only need to run this once,
     # but best to make sure it works every time
     earth_data.get_land_mask()
@@ -16,18 +16,21 @@ def test_earth():
     now = datetime.now()
     for lon, lat in lon_lats:
         result = "\b" if earth_data.is_light(lon, lat, now) else "not"
-        input("Manual check: Is it "+ result +" light right now at lon: " + \
-              str(lon) + " lat: " + str(lat) + "? Hit enter when done: ")
-    
-    # download clouds for one month
-    earth_data.download_merra_data(dtime.year, dtime.month)
+        print("Manual check: I think it is "+ result + \
+              " light right now at lon: " + \
+              str(lon) + " lat: " + str(lat) + \
+              ". Stop this if I'm wrong!")
+
     # get clear polygons for a specific time
-    polys = earth_data.get_clear_polys(dtime)
+    # this downloads data if it does not exist
+    # to download data manually, do this:
+    # earth_data.download_merra_data(dtime.year, dtime.month)
+    polys = earth_data.get_clear_polys(test_time)
     # not sure how to actually test this, I assume if it runs it's fine
-    if polys is not None:
+    if len(polys) != 0:
         print("passed test_earth")
     else:
-        print("failed test_earth")
+        print("failed test_earth, or maybe it's just dark at", test_time)
 
 
 def test_utils():
@@ -43,7 +46,8 @@ def test_utils():
     geometry.test_visible()
     geometry.test_polygon_area()
     geometry.test_obs_poly()
-    geometry.test_fov_coverage()
+    geometry.test_fov_coverage(test_time)
+    print("passed geometry tests!")
     # test timer
     import time
     from timer import timeit
@@ -51,17 +55,16 @@ def test_utils():
     def test_function():
         time.sleep(1)
     test_function()
-    input("If the value of the timer is about 1 second, we passed this test!"
-          "\nHit Enter to continue: ")
-    print("passed geometry tests!")
-
+    print("If the value of the timer is about 1 second, " + \
+          "we passed the timer test!")
+    
 
 def test_plotting():
     from datetime import datetime
     import plot_funcs
     from genetics import random_population
     from earth_data import get_clear_polys
-    dtime = datetime(2015, 5, 1)
+    dtime = test_time
     clear_polys = get_clear_polys(dtime)
     population = random_population(clear_polys)
     # this will also plot the clear polys, no need to test those separately
@@ -72,7 +75,7 @@ def test_optimization():
     import genetics
     import earth_data
     from datetime import datetime
-    dtime = datetime(2015, 5, 1)
+    dtime = test_time
     clear_polys, big_clear_poly = earth_data.get_clear(dtime)
     best_points = genetics.do_genetics(dtime, clear_polys, big_clear_poly)
     print("Best spots to point:")

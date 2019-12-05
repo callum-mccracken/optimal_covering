@@ -12,7 +12,7 @@ from timer import timeit
 import constants
 import plot_funcs
 
-dtime = datetime(2015, 4, 1)
+dtime = datetime(2015, 5, 1)
 clear_polys, big_clear_poly = earth_data.get_clear(dtime)
 clear_points = earth_data.get_clear_polys(dtime, just_coords=True)
 initial_points = random_population(clear_polys)[0]
