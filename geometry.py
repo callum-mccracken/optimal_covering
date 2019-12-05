@@ -147,9 +147,10 @@ def ortho_x_y_to_lon_lat(x, y):
 
 
 def test_ortho_conversion():
+    import sampling
     counter = 0
-    for lon in c.lons:
-        for lat in c.lats:
+    for lon in sampling.random_sample(c.lons, k=10):
+        for lat in sampling.random_sample(c.lats, k=10):
             if visible(lon, lat):
                 counter += 1
                 new_lon, new_lat = ortho_x_y_to_lon_lat(
@@ -399,8 +400,9 @@ def angle_x_y_to_ortho_x_y(angle_x, angle_y):
 
 
 def test_ortho_angles():
-    for lon in c.lons:
-        for lat in c.lats:
+    import sampling
+    for lon in sampling.random_sample(c.lons, k=10):
+        for lat in sampling.random_sample(c.lats, k=10):
             if visible(lon, lat):
                 x, y = lon_lat_to_ortho_x_y(lon, lat)
                 angle_x, angle_y = ortho_x_y_to_angle_x_y(x, y)
@@ -509,9 +511,10 @@ def obs_poly(lon, lat):
 
 
 def test_obs_poly():
+    import sampling
     # check that it makes a whole bunch of polygons in the visible area
-    for lon in c.lons:
-        for lat in c.lats:
+    for lon in sampling.random_sample(c.lons, k=10):
+        for lat in sampling.random_sample(c.lats, k=10):
             if visible(lon, lat):
                 _ = obs_poly(lon, lat)
     # other than the fact that it makes polygons, not sure what else to test...
