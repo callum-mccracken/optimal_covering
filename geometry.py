@@ -32,6 +32,7 @@ from shapely.errors import TopologicalError
 import shapely.ops as ops
 
 import constants as c
+from timer import timeit
 
 # we'll have some rounding error to deal with at certain points
 accuracy = 1e-8
@@ -520,7 +521,7 @@ def test_obs_poly():
     # other than the fact that it makes polygons, not sure what else to test...
     print("passed test_obs_poly")
 
-
+@timeit
 def fov_coverage(population, clear_poly):
     """
     Calculates coverage for a population. That is, the total unique area
@@ -607,3 +608,41 @@ def test_fov_coverage(dtime):
     _ = fov_coverage(population, clear_poly)
     # not sure how we can test if it's good, but this at least checks it runs
     print("passed test_fov_coverage")
+
+
+def fast_coverage(points, clear_poly):
+    # ensure we only count visible points
+    points = [(lon, lat) for lon, lat in points if visible(lon, lat)]
+    # array containing polygons rather than tuples of coordinates
+    polys = array([obs_poly(*point) for point in points])
+
+    # take union of all points
+    union_poly = ops.cascaded_union(polys)
+    # find intersection of that shape with clear_poly
+    intersection = union_poly.intersection(clear_poly)
+    # get the area of that intersection
+    return intersection.area
+
+
+if __name__ == "__main__":
+    import earth_data
+    import genetics
+    from datetime import datetime
+    from plot_funcs import plot_points
+
+    dtime = datetime(2015, 5, 1)
+    # get some test day's cloud data
+    clear_polys, clear_poly = earth_data.get_clear(dtime)
+    # get some points
+    points = genetics.random_population(clear_polys)[0]
+
+    # ensure all points are visible
+    for lon, lat in points:
+        if not visible(lon, lat):
+            raise ValueError("all points must be visible!")
+
+    # make a plot
+    plot_points(points, "a", dtime, show=True)
+
+    # get area
+    print(fast_coverage(points, clear_poly))

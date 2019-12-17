@@ -20,7 +20,7 @@ def cost(points, big_clear_poly):
     Calculate the cost of a set of points,
     at a time where the clear area on Earth is represented by big_clear_poly
     """
-    return geometry.fov_coverage(points, big_clear_poly)
+    return -1 * geometry.fast_coverage(points, big_clear_poly)
 
 def random_points():
     """
@@ -56,13 +56,7 @@ def optimize():
     big_clear_poly = clear_poly(dtime)
 
     # calculate cost
-    try:
-        cost_value = cost(points, big_clear_poly)
-    except Exception as e:
-        print("Looks like this crashed, sorry...",
-              "If you're feeling ambitious, look inside geometry.py",
-              "and let me know if you figure out why that happened!",
-              "But for now, just try running a different set of points!")
+    cost_value = cost(points, big_clear_poly)
 
     # do something to the points...
     # optimize somehow...

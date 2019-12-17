@@ -1,5 +1,5 @@
 """
-A module to be used as a template when trying new optimization methods.
+A module for implementing simulated annealing.
 """
 from datetime import datetime
 import numpy as np
@@ -30,7 +30,7 @@ def cost(points):
     Calculate the cost of a set of points,
     at a time where the clear area on Earth is represented by big_clear_poly
     """
-    return geometry.fov_coverage([points], big_clear_poly)
+    return geometry.fast_coverage(points, big_clear_poly)
 
 
 def energy(points):
@@ -42,7 +42,7 @@ def energy(points):
     Return:
         The energy of the configuration if we say cost = energy.
     """
-    return 1000 / np.sum(cost(points), axis=1)
+    return -1 * cost(points)
 
 
 def metropolis_decision(initial_energy, flipped_energy, T):
@@ -60,7 +60,15 @@ def metropolis_decision(initial_energy, flipped_energy, T):
     if flipped_energy < initial_energy:
         return True
     else:
-        acceptance_prob = np.exp((initial_energy - flipped_energy) / T)
+        try:
+            acceptance_prob = np.exp((initial_energy - flipped_energy) / T)
+        except FloatingPointError:
+            # overflow/underflow errors in exp can happen if
+            # initial energy and flipped energy are very different
+            if initial_energy < flipped_energy:
+                acceptance_prob = 1
+            else:
+                acceptance_prob = 0
 
         if np.random.rand() < acceptance_prob:
             return True
@@ -73,18 +81,25 @@ def get_radius(T):
     return constants.re_km * (T / T_init)
 
 
-def move_point_within(point, radius):
+def move_point_within(point, radius, points):
     # all possible points to move to are given by clear poly centers
     # find all points to move to within the radius
+    # that are not already in points
     possible_points = []
+    points = list(points)
     for c in clear_points:
         lon1, lat1 = point
         lon2, lat2 = c
         r = geometry.arc_length(lon1, lat1, lon2=lon2, lat2=lat2)
+        if c in points:  # don't add a point we already have
+            continue
         if r < radius:
             possible_points.append(c)
-    rand_index = int(np.random.randint(0, high=len(possible_points)))
-    return possible_points[rand_index]
+    if len(possible_points) == 0:
+        return point
+    else:
+        rand_index = int(np.random.randint(0, high=len(possible_points)))
+        return possible_points[rand_index]
 
 
 def metropolis_sa(points, point_to_move, T):
@@ -106,7 +121,7 @@ def metropolis_sa(points, point_to_move, T):
     # Move the point to some other point within a certain radius
     point = points[point_to_move]
     radius = get_radius(T)
-    points_moved[point_to_move] = move_point_within(point, radius)
+    points_moved[point_to_move] = move_point_within(point, radius, points)
     
     # Decide whether or not to accept
     initial_energy = energy(points)
@@ -139,14 +154,12 @@ def simulated_annealing(T_schedule):
     #  - Perform T_sweeps attempts to flip random spins on the lattice
     #  - Store the energy of the final configuration in energy_per_step
     for step in range(len(T_schedule)):
-        print("Now working on step", step+1, "out of", len(T_schedule))
+        print("Now working on step", step+1, "out of", len(T_schedule), "\r", end="")
         T = T_schedule[step]
 
         for flip in range(T_spin_flips):
-            print(f"Flip = {flip:02}\r", end="")
             point_to_move = np.random.randint(0, len(points))
             points = metropolis_sa(points, point_to_move, T)
-        plot_funcs.plot_points(points, "a"+str(step), dtime, show=False)
         energy_per_step[step] = energy(points)
 
     return energy_per_step, points
@@ -154,8 +167,8 @@ def simulated_annealing(T_schedule):
 
 # Let's plot the energies...
 energy_per_step, points = simulated_annealing(T_schedule)
-#plt.plot(energy_per_step)
-#plt.savefig("e_per_step.png")
+plt.plot(energy_per_step)
+plt.savefig("e_per_step.png")
 plot_funcs.plot_points(points, "Annealing_g0", dtime, show=False)
 print(f"Minimum energy value found is {np.min(energy_per_step):.4f}")
 best_energies = np.zeros(num_anneals)
