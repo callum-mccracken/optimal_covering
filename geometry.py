@@ -286,10 +286,10 @@ def max_visible_angle():
     return theta
 
 
-def angle_from_arc_length(arc_length):
+def angle_from_arc_length(arc):
     """
     Returns the size of the angle we'll have to point the satellite,
-    away from "straight down", in order to see a point a distance arc_length
+    away from "straight down", in order to see a point an arclength arc
     away on the surface of the Earth.
     """
     # distance to satellite from center of Earth
@@ -297,16 +297,16 @@ def angle_from_arc_length(arc_length):
     r = c.sat_alt + c.re_km
 
     # "internal angle" from satellite --> center of Earth --> point
-    α = arc_length / c.re_km
+    α = arc / c.re_km
 
     # Think of a triangle with vertices at the satellite,
-    # at the center of the Earth, and at the point arc_length away.
+    # at the center of the Earth, and at the point arc away.
     # Two sides have length r and re_km.
     # The other side has length b, which can be found with the cosine law:
     b = sqrt(r ** 2 + c.re_km ** 2 - 2 * r * c.re_km * cos(α))
 
     # theta is the angle (relative to "straight down") that the satellite must
-    # point in order to see the point arc_length away.
+    # point in order to see the point arc away.
     theta = arcsin(c.re_km*sin(α)/b)
     return theta
 
@@ -331,10 +331,10 @@ def arc_length_from_angle(angle):
     # as in the other function, alpha is the angle from sat --> Earth --> point
     alpha = np.pi - beta - theta
 
-    arc_length = alpha * c.re_km
+    arc = alpha * c.re_km
 
     # return distance along the Earth's surface
-    return arc_length
+    return arc
 
 
 # max angle the satellite can point (from straight down) before seeing space
