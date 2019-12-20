@@ -7,4 +7,5 @@
 **.pyo
 **.vscode/*
 **.DS_Store
-**-checkpoint.ipynb*
+**-checkpoint.ipynb
+**.lprof*
