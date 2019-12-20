@@ -4,6 +4,7 @@ A module for implementing simulated annealing.
 from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm as تقدّم
 
 import earth_data
 import geometry
@@ -24,7 +25,7 @@ T_spin_flips = 100    # Number of spin flips at each temperature
 T_schedule = np.linspace(T_init, T_final, T_steps) # Linear cooling schedule
 num_anneals = 50  # number of times to run the annealing procedure
 
-
+@profile
 def cost(points):
     """
     Calculate the cost of a set of points,
@@ -32,7 +33,7 @@ def cost(points):
     """
     return geometry.fast_coverage(points, big_clear_poly)
 
-
+@profile
 def energy(points):
     """
     Compute the energy of a set of observations.
@@ -44,7 +45,7 @@ def energy(points):
     """
     return -1 * cost(points)
 
-
+@profile
 def metropolis_decision(initial_energy, flipped_energy, T):
     """
     Use the Metropolis criterion to decide whether to accept a new state. 
@@ -75,12 +76,12 @@ def metropolis_decision(initial_energy, flipped_energy, T):
         else:
             return False
 
-
+@profile
 def get_radius(T):
     """get radius of how far away to move a point during SA"""
     return constants.re_km * (T / T_init)
 
-
+@profile
 def move_point_within(point, radius, points):
     # all possible points to move to are given by clear poly centers
     # find all points to move to within the radius
@@ -101,7 +102,7 @@ def move_point_within(point, radius, points):
         rand_index = int(np.random.randint(0, high=len(possible_points)))
         return possible_points[rand_index]
 
-
+@profile
 def metropolis_sa(points, point_to_move, T):
     """
     Run a single Monte Carlo step of SA. Flip a spin and decide whether to accept 
@@ -131,7 +132,7 @@ def metropolis_sa(points, point_to_move, T):
     else:
         return points
 
-
+@profile
 def simulated_annealing(T_schedule):
     """
     Run simulated annealing.
@@ -153,8 +154,8 @@ def simulated_annealing(T_schedule):
     # Work through the temperature schedule and at each point
     #  - Perform T_sweeps attempts to flip random spins on the lattice
     #  - Store the energy of the final configuration in energy_per_step
-    for step in range(len(T_schedule)):
-        print("Now working on step", step+1, "out of", len(T_schedule), "\r", end="")
+    for step in تقدّم(range(len(T_schedule))):
+        #print("Now working on step", step+1, "out of", len(T_schedule), "\r", end="")
         T = T_schedule[step]
 
         for flip in range(T_spin_flips):
@@ -173,14 +174,14 @@ plot_funcs.plot_points(points, "Annealing_g0", dtime, show=False)
 print(f"Minimum energy value found is {np.min(energy_per_step):.4f}")
 best_energies = np.zeros(num_anneals)
 
-for anneal_run in range(num_anneals):
-    energy_per_step, points = simulated_annealing(T_schedule)
-    plot_funcs.plot_points(points, f"Annealing_g{anneal_run+1}", dtime, show=False)
-    best_energies[anneal_run] = energy_per_step[-1]
+#for anneal_run in range(num_anneals):
+#    energy_per_step, points = simulated_annealing(T_schedule)
+#    plot_funcs.plot_points(points, f"Annealing_g{anneal_run+1}", dtime, show=False)
+#    best_energies[anneal_run] = energy_per_step[-1]
 
 # Plot a histogram of the energy outputs
 # We will store our best energy for comparison later
-our_best_energy = np.min(best_energies)
-plt.hist(best_energies)
-plt.show()
-print(f"Minimum energy found by SA is {our_best_energy:.4f}")
+#our_best_energy = np.min(best_energies)
+#plt.hist(best_energies)
+#plt.show()
+#print(f"Minimum energy found by SA is {our_best_energy:.4f}")
