@@ -22,18 +22,9 @@ T_init = 10       # Initial temperature
 T_final = 0.001   # Final temperature
 T_steps = 200      # Number of different temperatures in the cooling sequence
 T_spin_flips = 100    # Number of spin flips at each temperature
-T_schedule = np.linspace(T_init, T_final, T_steps) # Linear cooling schedule
+T_schedule = np.linspace(T_init, T_final, T_steps, endpoint=True) # Linear cooling schedule
 num_anneals = 50  # number of times to run the annealing procedure
 
-@profile
-def cost(points):
-    """
-    Calculate the cost of a set of points,
-    at a time where the clear area on Earth is represented by big_clear_poly
-    """
-    return geometry.fast_coverage(points, big_clear_poly)
-
-@profile
 def energy(points):
     """
     Compute the energy of a set of observations.
@@ -41,11 +32,11 @@ def energy(points):
     Params:
         :points: A 1D numpy array of (lon, lat) tuples, points to observe
     Return:
-        The energy of the configuration if we say cost = energy.
+        The energy of the configuration if we say coverage = energy.
     """
-    return -1 * cost(points)
+    return -1 * geometry.fast_coverage(points, big_clear_poly)
 
-@profile
+
 def metropolis_decision(initial_energy, flipped_energy, T):
     """
     Use the Metropolis criterion to decide whether to accept a new state. 
@@ -76,61 +67,66 @@ def metropolis_decision(initial_energy, flipped_energy, T):
         else:
             return False
 
-@profile
+
 def get_radius(T):
     """get radius of how far away to move a point during SA"""
     return constants.re_km * (T / T_init)
+
 
 @profile
 def move_point_within(point, radius, points):
     # all possible points to move to are given by clear poly centers
     # find all points to move to within the radius
     # that are not already in points
+    # clear points that we're not currently observing
     possible_points = []
-    points = list(points)
-    for c in clear_points:
-        lon1, lat1 = point
-        lon2, lat2 = c
-        r = geometry.arc_length(lon1, lat1, lon2=lon2, lat2=lat2)
-        if c in points:  # don't add a point we already have
-            continue
-        if r < radius:
-            possible_points.append(c)
-    if len(possible_points) == 0:
-        return point
-    else:
-        rand_index = int(np.random.randint(0, high=len(possible_points)))
-        return possible_points[rand_index]
+    # clear points we could move to
+    clear_pts = [c for c in clear_points if c not in points]
+    # randomize their order
+    np.random.shuffle(clear_pts)
+    # pick random indices until we find one within range or run out of points
+    c = clear_pts.pop()
+    r = geometry.arc_length(*point, *c)
+    while r > radius:
+        try:
+            c = clear_pts.pop()
+        except IndexError:
+            # we've run out of points to pop, i.e. no c is close enough
+            return point
+        r = geometry.arc_length(*point, *c)
+    return c
+
 
 @profile
-def metropolis_sa(points, point_to_move, T):
+def metropolis_sa(points, point_to_move, T, initial_energy=None):
     """
     Run a single Monte Carlo step of SA. Flip a spin and decide whether to accept 
     the new configuration. Call the metropolis_decision method to help you here!
     
     Params:
-        :points: A 1D numpy array of (lon, lat) tuples, points to observe.
+        :points: A list of (lon, lat) tuples, points to observe.
         :point_to_move: An integer indicating which point should be moved.
         :T: the current temperature of the system
 
     Return:
-        :return: The updated (or unchanged) lattice.
+        :return: The updated (or unchanged) lattice, and its energy
     """
     # Copy the lattice
-    points_moved = points.copy()
-    
+    points_moved = points
+
     # Move the point to some other point within a certain radius
     point = points[point_to_move]
     radius = get_radius(T)
     points_moved[point_to_move] = move_point_within(point, radius, points)
-    
+
     # Decide whether or not to accept
-    initial_energy = energy(points)
+    if initial_energy is None:
+        initial_energy = energy(points)
     flipped_energy = energy(points_moved)
     if metropolis_decision(initial_energy, flipped_energy, T):
-        return points_moved
+        return points_moved, flipped_energy
     else:
-        return points
+        return points, initial_energy
 
 @profile
 def simulated_annealing(T_schedule):
@@ -149,24 +145,24 @@ def simulated_annealing(T_schedule):
     energy_per_step = np.zeros(len(T_schedule))
 
     # Initialize a random starting point for the lattice
-    points = initial_points
+    points = list(initial_points)
 
     # Work through the temperature schedule and at each point
     #  - Perform T_sweeps attempts to flip random spins on the lattice
     #  - Store the energy of the final configuration in energy_per_step
     for step in تقدّم(range(len(T_schedule))):
-        #print("Now working on step", step+1, "out of", len(T_schedule), "\r", end="")
         T = T_schedule[step]
-
-        for flip in range(T_spin_flips):
+        last_energy = None
+        for flip in تقدّم(range(T_spin_flips), leave=False):
             point_to_move = np.random.randint(0, len(points))
-            points = metropolis_sa(points, point_to_move, T)
+            points, last_energy = metropolis_sa(
+                points, point_to_move, T, initial_energy=last_energy)
         energy_per_step[step] = energy(points)
 
     return energy_per_step, points
 
 
-# Let's plot the energies...
+print("doing simulated annealing from R =", get_radius(T_init), "km to", get_radius(T_final))
 energy_per_step, points = simulated_annealing(T_schedule)
 plt.plot(energy_per_step)
 plt.savefig("e_per_step.png")

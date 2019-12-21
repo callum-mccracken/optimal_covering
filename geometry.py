@@ -355,10 +355,7 @@ def arc_length(lon1, lat1, lon2=c.sat_lon, lat2=c.sat_lat):
         return 0
     # coordinates of point 1 and 2.
     # point 1 is given. By default point 2 is the satellite.
-    λ_1 = radians(lon1)
-    φ_1 = radians(lat1)
-    λ_2 = radians(lon2)
-    φ_2 = radians(lat2)
+    λ_1, φ_1, λ_2, φ_2 = radians([lon1, lat1, lon2, lat2])
 
     Δλ = abs(λ_1 - λ_2)
 
