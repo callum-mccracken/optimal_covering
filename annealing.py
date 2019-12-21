@@ -53,7 +53,9 @@ def metropolis_decision(initial_energy, flipped_energy, T):
         return True
     else:
         try:
-            acceptance_prob = np.exp((initial_energy - flipped_energy) / T)
+            acceptance_prob = 0.1*np.exp((initial_energy - flipped_energy) / T)
+            if acceptance_prob > 1:
+                print(acceptance_prob)
         except FloatingPointError:
             # overflow/underflow errors in exp can happen if
             # initial energy and flipped energy are very different
@@ -73,13 +75,11 @@ def get_radius(T):
     return constants.re_km * (T / T_init)
 
 
-@profile
+#@profile
 def move_point_within(point, radius, points):
     # all possible points to move to are given by clear poly centers
-    # find all points to move to within the radius
-    # that are not already in points
-    # clear points that we're not currently observing
-    possible_points = []
+    # find all points to move to within the given radius
+
     # clear points we could move to
     clear_pts = [c for c in clear_points if c not in points]
     # randomize their order
@@ -87,7 +87,7 @@ def move_point_within(point, radius, points):
     # pick random indices until we find one within range or run out of points
     c = clear_pts.pop()
     r = geometry.arc_length(*point, *c)
-    while r > radius:
+    while r >= radius:
         try:
             c = clear_pts.pop()
         except IndexError:
@@ -97,7 +97,23 @@ def move_point_within(point, radius, points):
     return c
 
 
-@profile
+def move_point_within_orig(point, radius, points):
+    # all possible points to move to are given by clear poly centers
+    # find all points to move to within the radius
+    possible_points = []
+    for c in clear_points:
+        if c in points:
+            continue
+        lon1, lat1 = point
+        lon2, lat2 = c
+        r = geometry.arc_length(lon1, lat1, lon2=lon2, lat2=lat2)
+        if r < radius:
+            possible_points.append(c)
+    rand_index = int(np.random.randint(0, high=len(possible_points)))
+    return possible_points[rand_index]
+
+
+#@profile
 def metropolis_sa(points, point_to_move, T, initial_energy=None):
     """
     Run a single Monte Carlo step of SA. Flip a spin and decide whether to accept 
@@ -112,7 +128,7 @@ def metropolis_sa(points, point_to_move, T, initial_energy=None):
         :return: The updated (or unchanged) lattice, and its energy
     """
     # Copy the lattice
-    points_moved = points
+    points_moved = points.copy()
 
     # Move the point to some other point within a certain radius
     point = points[point_to_move]
@@ -128,7 +144,7 @@ def metropolis_sa(points, point_to_move, T, initial_energy=None):
     else:
         return points, initial_energy
 
-@profile
+#@profile
 def simulated_annealing(T_schedule):
     """
     Run simulated annealing.
@@ -146,26 +162,25 @@ def simulated_annealing(T_schedule):
 
     # Initialize a random starting point for the lattice
     points = list(initial_points)
-
     # Work through the temperature schedule and at each point
     #  - Perform T_sweeps attempts to flip random spins on the lattice
     #  - Store the energy of the final configuration in energy_per_step
     for step in تقدّم(range(len(T_schedule))):
         T = T_schedule[step]
-        last_energy = None
+        step_energy = None
         for flip in تقدّم(range(T_spin_flips), leave=False):
             point_to_move = np.random.randint(0, len(points))
-            points, last_energy = metropolis_sa(
-                points, point_to_move, T, initial_energy=last_energy)
-        energy_per_step[step] = energy(points)
-
+            points, step_energy = metropolis_sa(
+                points, point_to_move, T, initial_energy=step_energy)
+        energy_per_step[step] = step_energy
+        plt.plot(energy_per_step[:step+1])
+        plt.savefig("e_per_step.png")
+        plt.cla()
     return energy_per_step, points
 
 
 print("doing simulated annealing from R =", get_radius(T_init), "km to", get_radius(T_final))
 energy_per_step, points = simulated_annealing(T_schedule)
-plt.plot(energy_per_step)
-plt.savefig("e_per_step.png")
 plot_funcs.plot_points(points, "Annealing_g0", dtime, show=False)
 print(f"Minimum energy value found is {np.min(energy_per_step):.4f}")
 best_energies = np.zeros(num_anneals)
