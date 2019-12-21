@@ -158,13 +158,14 @@ def simulated_annealing(T_schedule):
         :return: The final version of the lattice.
     """
     # Keeps track of the final energy at every temperature
-    energy_per_step = np.zeros(len(T_schedule))
+    energy_per_step = []
 
     # Initialize a random starting point for the lattice
     points = list(initial_points)
     # Work through the temperature schedule and at each point
     #  - Perform T_sweeps attempts to flip random spins on the lattice
     #  - Store the energy of the final configuration in energy_per_step
+    points_list = []
     for step in تقدّم(range(len(T_schedule))):
         T = T_schedule[step]
         step_energy = None
@@ -172,12 +173,15 @@ def simulated_annealing(T_schedule):
             point_to_move = np.random.randint(0, len(points))
             points, step_energy = metropolis_sa(
                 points, point_to_move, T, initial_energy=step_energy)
-        energy_per_step[step] = step_energy
-        plt.plot(energy_per_step[:step+1])
+        energy_per_step.append(step_energy)
+        points_list.append(points)
+        plt.plot(energy_per_step)
         plt.savefig("e_per_step.png")
         plt.cla()
+    min_energy = min(energy_per_step)
+    min_energy_index = energy_per_step.index(min_energy)
+    points = points_list[min_energy_index]
     return energy_per_step, points
-
 
 print("doing simulated annealing from R =", get_radius(T_init), "km to", get_radius(T_final))
 energy_per_step, points = simulated_annealing(T_schedule)
