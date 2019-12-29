@@ -1,11 +1,15 @@
 """
 A module for implementing simulated annealing.
 """
+import time
 from datetime import datetime
+from multiprocessing import Pool
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm as تقدّم
-
+import tqdm
+import logging
+from os.path import join
 import earth_data
 import geometry
 from genetics import random_population
@@ -13,17 +17,17 @@ from timer import timeit
 import constants
 import plot_funcs
 
-dtime = datetime(2015, 5, 1)
+dtime = datetime(2015, 4, 1)
 clear_polys, big_clear_poly = earth_data.get_clear(dtime)
 clear_points = earth_data.get_clear_polys(dtime, just_coords=True)
 initial_points = random_population(clear_polys)[0]
 
 T_init = 10       # Initial temperature
 T_final = 0.001   # Final temperature
-T_steps = 200      # Number of different temperatures in the cooling sequence
+T_steps = 100      # Number of different temperatures in the cooling sequence
 T_spin_flips = 100    # Number of spin flips at each temperature
 T_schedule = np.linspace(T_init, T_final, T_steps, endpoint=True) # Linear cooling schedule
-num_anneals = 50  # number of times to run the annealing procedure
+num_anneals = 8  # number of times to run the annealing procedure
 
 def energy(points):
     """
@@ -144,8 +148,14 @@ def metropolis_sa(points, point_to_move, T, initial_energy=None):
     else:
         return points, initial_energy
 
+class TqdmStream(object):
+  @classmethod
+  def write(_, msg):
+    tqdm.tqdm.write(msg, end='')
+
+
 #@profile
-def simulated_annealing(T_schedule):
+def simulated_annealing(inputs):
     """
     Run simulated annealing.
     
@@ -157,6 +167,10 @@ def simulated_annealing(T_schedule):
                  of each temperature step.
         :return: The final version of the lattice.
     """
+    T_schedule, output_name = inputs
+    logging.basicConfig(filename=join(constants.png_dir, output_name+".txt"),
+                        level=logging.DEBUG, filemode='w', format='%(message)s')
+
     # Keeps track of the final energy at every temperature
     energy_per_step = []
 
@@ -166,37 +180,46 @@ def simulated_annealing(T_schedule):
     #  - Perform T_sweeps attempts to flip random spins on the lattice
     #  - Store the energy of the final configuration in energy_per_step
     points_list = []
-    for step in تقدّم(range(len(T_schedule))):
+    for step in range(T_steps):
+        logging.debug(f"Step {step} of {T_steps}")
         T = T_schedule[step]
         step_energy = None
-        for flip in تقدّم(range(T_spin_flips), leave=False):
+        for _ in range(T_spin_flips):
             point_to_move = np.random.randint(0, len(points))
             points, step_energy = metropolis_sa(
                 points, point_to_move, T, initial_energy=step_energy)
         energy_per_step.append(step_energy)
         points_list.append(points)
-        plt.plot(energy_per_step)
-        plt.savefig("e_per_step.png")
-        plt.cla()
     min_energy = min(energy_per_step)
     min_energy_index = energy_per_step.index(min_energy)
     points = points_list[min_energy_index]
     return energy_per_step, points
 
-print("doing simulated annealing from R =", get_radius(T_init), "km to", get_radius(T_final))
-energy_per_step, points = simulated_annealing(T_schedule)
-plot_funcs.plot_points(points, "Annealing_g0", dtime, show=False)
-print(f"Minimum energy value found is {np.min(energy_per_step):.4f}")
-best_energies = np.zeros(num_anneals)
 
-#for anneal_run in range(num_anneals):
-#    energy_per_step, points = simulated_annealing(T_schedule)
-#    plot_funcs.plot_points(points, f"Annealing_g{anneal_run+1}", dtime, show=False)
-#    best_energies[anneal_run] = energy_per_step[-1]
-
-# Plot a histogram of the energy outputs
-# We will store our best energy for comparison later
-#our_best_energy = np.min(best_energies)
-#plt.hist(best_energies)
-#plt.show()
-#print(f"Minimum energy found by SA is {our_best_energy:.4f}")
+if __name__ == "__main__":
+    print("doing simulated annealing")
+    print("R =", get_radius(T_init), "km to", get_radius(T_final), "km.")
+    #T_schedule = tuple([T_schedule] * num_anneals)
+    print(T_schedule)
+    start_time = time.time()
+    p = Pool()
+    result = p.map(simulated_annealing, zip(
+        [T_schedule] * num_anneals,
+        [str(i) for i in range(num_anneals)]))
+    p.close()
+    p.join()
+    duration = time.time() - start_time
+    print(f"We took {duration / 60} minutes to do the hard step.")
+    best_e = 0
+    best_points = []
+    for i, pair in enumerate(result):
+        e_per_step, points = pair
+        #plot_funcs.plot_points(points, f"Annealing_{i}", dtime, show=False)
+        #print(f"Minimum energy value found is {np.min(e_per_step):.4f}")
+        new_best_e = np.min(e_per_step)
+        if new_best_e < best_e:
+            best_e = new_best_e
+            best_points = points
+    print(best_e)
+    print(best_points)
+    plot_funcs.plot_points(best_points, "best_anneal", dtime, show=False)
